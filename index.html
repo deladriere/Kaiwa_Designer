@@ -1,0 +1,2857 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kaiwa Vox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #d9e0eb;
+      --bg-deep: #b8c4d8;
+      --panel: rgba(250, 247, 240, 0.88);
+      --panel-solid: #faf7f0;
+      --panel-soft: #f3efe6;
+      --ink: #1c1917;
+      --muted: #5c564c;
+      --line: rgba(44, 63, 107, 0.18);
+      --line-strong: rgba(28, 25, 23, 0.28);
+      --indigo: #2c3f6b;
+      --indigo-soft: #4a5f8f;
+      --vermillion: #c23b22;
+      --vermillion-deep: #8f2414;
+      --gold: #a67c2d;
+      --connected: #2f6b4f;
+      --danger: #c23b22;
+      --terminal: #1f6b58;
+      --terminal-bg: #141814;
+      --shadow: 0 18px 40px rgba(28, 39, 68, 0.12);
+      --radius: 2px;
+      --font-ui: "Zen Kaku Gothic New", "Hiragino Sans", "Noto Sans JP", sans-serif;
+      --font-display: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    [hidden] { display: none !important; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--font-ui);
+      letter-spacing: 0.01em;
+      background:
+        radial-gradient(ellipse 90% 55% at 12% -10%, rgba(194, 59, 34, 0.10), transparent 55%),
+        radial-gradient(ellipse 70% 50% at 88% 8%, rgba(44, 63, 107, 0.18), transparent 50%),
+        linear-gradient(165deg, #e8edf5 0%, var(--bg) 42%, var(--bg-deep) 100%);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.45;
+      background-image:
+        radial-gradient(circle at 20% 30%, rgba(28, 25, 23, 0.035) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 70% 60%, rgba(44, 63, 107, 0.04) 0 1px, transparent 1.5px);
+      background-size: 7px 7px, 11px 11px;
+      animation: washi-drift 40s linear infinite;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      width: min(520px, 70vw);
+      height: min(520px, 70vw);
+      right: -8%;
+      top: 8%;
+      border: 1px solid rgba(44, 63, 107, 0.12);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      box-shadow:
+        inset 0 0 0 28px rgba(250, 247, 240, 0.08),
+        0 0 0 1px rgba(194, 59, 34, 0.06);
+      animation: enso-breathe 8s ease-in-out infinite;
+    }
+
+    @keyframes washi-drift {
+      from { transform: translate3d(0, 0, 0); }
+      to { transform: translate3d(-14px, 10px, 0); }
+    }
+
+    @keyframes enso-breathe {
+      0%, 100% { transform: scale(1); opacity: 0.7; }
+      50% { transform: scale(1.04); opacity: 1; }
+    }
+
+    @keyframes rise-in {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes seal-glow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(194, 59, 34, 0.0); }
+      50% { box-shadow: 0 0 0 6px rgba(194, 59, 34, 0.08); }
+    }
+
+    /* --- skins (same keys; Japanese themes) --- */
+    body.skin-hal {
+      --bg: #1a1714;
+      --bg-deep: #0d0c0b;
+      --panel: rgba(34, 30, 27, 0.92);
+      --panel-solid: #2a2623;
+      --panel-soft: #35302c;
+      --ink: #f0ebe3;
+      --muted: #b0a79a;
+      --line: rgba(240, 235, 227, 0.12);
+      --line-strong: rgba(232, 69, 47, 0.35);
+      --indigo: #e8452f;
+      --indigo-soft: #ff6a52;
+      --vermillion: #e8452f;
+      --vermillion-deep: #ff8a78;
+      --gold: #d4b06a;
+      --connected: #4caf7a;
+      --danger: #e8452f;
+      --terminal: #ff6a52;
+      --terminal-bg: #0a0908;
+      --shadow: 0 20px 48px rgba(0, 0, 0, 0.45);
+      background:
+        radial-gradient(ellipse 60% 40% at 50% 0%, rgba(232, 69, 47, 0.18), transparent 55%),
+        linear-gradient(180deg, #221e1b, #0d0c0b);
+    }
+
+    body.skin-wopr {
+      --bg: #d9e4d6;
+      --bg-deep: #b7c8b4;
+      --panel: rgba(244, 248, 241, 0.9);
+      --panel-solid: #f4f8f1;
+      --panel-soft: #e7efe4;
+      --ink: #1a241c;
+      --muted: #4f6354;
+      --line: rgba(47, 90, 58, 0.16);
+      --line-strong: rgba(26, 36, 28, 0.28);
+      --indigo: #2f5a3a;
+      --indigo-soft: #4a7a56;
+      --vermillion: #c7a24a;
+      --vermillion-deep: #8f7128;
+      --gold: #c7a24a;
+      --connected: #2f6b4f;
+      --danger: #b5452c;
+      --terminal: #2f6b4f;
+      --terminal-bg: #101610;
+      --shadow: 0 18px 40px rgba(26, 48, 32, 0.12);
+      background:
+        radial-gradient(ellipse 70% 50% at 80% 0%, rgba(199, 162, 74, 0.16), transparent 50%),
+        linear-gradient(160deg, #e8f0e4, #c5d4c2);
+    }
+
+    body.skin-moon {
+      --bg: #f3e4ea;
+      --bg-deep: #e4cdd7;
+      --panel: rgba(255, 250, 251, 0.9);
+      --panel-solid: #fffafb;
+      --panel-soft: #fff4f7;
+      --ink: #3a2430;
+      --muted: #7a5b68;
+      --line: rgba(196, 92, 122, 0.18);
+      --line-strong: rgba(58, 36, 48, 0.22);
+      --indigo: #8a4b63;
+      --indigo-soft: #c45c7a;
+      --vermillion: #c45c7a;
+      --vermillion-deep: #8f3d58;
+      --gold: #c4a06a;
+      --connected: #4d8a6a;
+      --danger: #c45c7a;
+      --terminal: #8a4b63;
+      --terminal-bg: #241820;
+      --shadow: 0 18px 40px rgba(90, 40, 60, 0.12);
+      background:
+        radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.85), transparent 28%),
+        radial-gradient(ellipse 50% 40% at 85% 20%, rgba(196, 92, 122, 0.16), transparent 50%),
+        linear-gradient(165deg, #fff7f9, #e8d0da);
+    }
+
+    body.skin-alien {
+      --bg: #12182a;
+      --bg-deep: #0b1020;
+      --panel: rgba(24, 32, 52, 0.92);
+      --panel-solid: #182034;
+      --panel-soft: #222c46;
+      --ink: #e8eef8;
+      --muted: #9aabca;
+      --line: rgba(232, 238, 248, 0.12);
+      --line-strong: rgba(217, 74, 43, 0.4);
+      --indigo: #6b87c4;
+      --indigo-soft: #8ea6d8;
+      --vermillion: #d94a2b;
+      --vermillion-deep: #ff7a5c;
+      --gold: #d4b06a;
+      --connected: #3dba8a;
+      --danger: #d94a2b;
+      --terminal: #7eb6ff;
+      --terminal-bg: #070b14;
+      --shadow: 0 22px 50px rgba(0, 0, 0, 0.45);
+      background:
+        radial-gradient(ellipse 55% 35% at 70% 0%, rgba(217, 74, 43, 0.2), transparent 55%),
+        radial-gradient(ellipse 40% 30% at 10% 80%, rgba(107, 135, 196, 0.22), transparent 50%),
+        linear-gradient(180deg, #182038, #0b1020);
+    }
+
+    body.skin-hal::before,
+    body.skin-alien::before {
+      opacity: 0.25;
+    }
+
+    body.skin-hal::after,
+    body.skin-alien::after {
+      border-color: rgba(232, 69, 47, 0.22);
+    }
+
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 36px 0 56px;
+      position: relative;
+      z-index: 1;
+      animation: rise-in 0.7s ease-out both;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 22px;
+      padding: 18px 20px;
+      background: var(--panel);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--vermillion);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 3px;
+      background: linear-gradient(180deg, var(--vermillion), transparent);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .brand-seal {
+      width: 58px;
+      height: 58px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border: 2px solid var(--vermillion);
+      color: var(--vermillion);
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      line-height: 1;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.25), transparent 55%),
+        color-mix(in srgb, var(--vermillion) 8%, transparent);
+      animation: seal-glow 4.5s ease-in-out infinite;
+      transform: rotate(-4deg);
+    }
+
+    .brand-text {
+      min-width: 0;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      line-height: 1;
+      color: var(--ink);
+    }
+
+    .brand-vox {
+      font-family: var(--font-display);
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      font-size: 0.42em;
+      vertical-align: middle;
+      margin-left: 0.35em;
+      color: var(--vermillion);
+      text-transform: uppercase;
+    }
+
+    .brand-kana {
+      margin: 6px 0 0;
+      font-family: var(--font-display);
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: none;
+      color: var(--indigo);
+      font-weight: 500;
+    }
+
+    .conn-label-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .conn-label-row .pseudo-label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .conn-readout {
+      display: flex;
+      align-items: center;
+      min-height: 42px;
+      padding: 10px 14px;
+      background: var(--panel-soft);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      font: inherit;
+      font-size: 13px;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+
+    #midiOutputPickWrap.midi-ready select {
+      border-color: var(--vermillion);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--vermillion) 18%, transparent);
+    }
+
+    .midi-settings-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 110px;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .midi-channel-field label {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .midi-channel-field select { width: 100%; }
+
+    .dip-hint {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .conn-hint {
+      min-height: 16px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .conn-hint:empty { display: none; }
+
+    .conn-hint.ready {
+      color: var(--vermillion);
+      font-weight: 700;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--ink);
+      font-size: 12px;
+      white-space: nowrap;
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      padding: 4px 8px;
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .version-readout {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 4px 10px;
+      color: var(--muted);
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .manual-link,
+    .source-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 4px 12px;
+      color: var(--ink);
+      background: transparent;
+      border: 1px solid var(--line-strong);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .manual-link:hover,
+    .source-link:hover {
+      background: var(--indigo);
+      color: #faf7f0;
+      border-color: var(--indigo);
+    }
+
+    body.skin-hal .manual-link:hover,
+    body.skin-hal .source-link:hover,
+    body.skin-alien .manual-link:hover,
+    body.skin-alien .source-link:hover {
+      color: #fff;
+    }
+
+    .skin-select {
+      min-width: 150px;
+      width: auto;
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--danger);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 20%, transparent);
+    }
+
+    .dot.connected {
+      background: var(--connected);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--connected) 25%, transparent);
+    }
+
+    .panel {
+      background: var(--panel);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+      animation: rise-in 0.55s ease-out both;
+    }
+
+    .panel:nth-of-type(2) { animation-delay: 0.05s; }
+    .panel:nth-of-type(3) { animation-delay: 0.1s; }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .connection-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    textarea,
+    select,
+    .slot-input {
+      width: 100%;
+      background: var(--panel-soft);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 11px 13px;
+      font: inherit;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    textarea {
+      min-height: 130px;
+      resize: vertical;
+      line-height: 1.55;
+    }
+
+    textarea:focus,
+    select:focus,
+    .slot-input:focus {
+      border-color: var(--indigo);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--indigo) 18%, transparent);
+      outline: none;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      background: var(--panel-soft);
+      color: var(--ink);
+      padding: 10px 16px;
+      font: inherit;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 12px;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+
+    button:hover:not(:disabled) {
+      border-color: var(--indigo);
+      color: var(--indigo);
+    }
+
+    button.primary {
+      background: var(--vermillion);
+      color: #fffaf7;
+      border-color: var(--vermillion);
+    }
+
+    button.primary:hover:not(:disabled) {
+      background: var(--vermillion-deep);
+      color: #fffaf7;
+      border-color: var(--vermillion-deep);
+    }
+
+    button:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+    }
+
+    pre {
+      min-height: 180px;
+      max-height: 320px;
+      overflow: auto;
+      margin: 0;
+      padding: 14px;
+      background: var(--terminal-bg);
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      color: var(--terminal);
+      font-family: "IBM Plex Mono", "SF Mono", "Menlo", monospace;
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+
+    .pot-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      gap: 14px;
+    }
+
+    .pot {
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+      padding: 16px 12px;
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      position: relative;
+    }
+
+    .pot::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 16%;
+      right: 16%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--vermillion), transparent);
+      opacity: 0.7;
+    }
+
+    .pot-widget canvas {
+      display: block;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--ink) 88%, transparent);
+    }
+
+    .pot-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .pot-map {
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+    }
+
+    .pot-value {
+      color: var(--vermillion);
+      font-variant-numeric: tabular-nums;
+      font-size: 13px;
+      font-weight: 700;
+      background: color-mix(in srgb, var(--ink) 92%, transparent);
+      border: 1px solid var(--line);
+      padding: 3px 8px;
+      min-width: 3.2em;
+      text-align: center;
+    }
+
+    body:not(.skin-hal):not(.skin-alien) .pot-value {
+      background: #1c1917;
+      color: #f3efe6;
+      border-color: transparent;
+    }
+
+    body:not(.skin-hal):not(.skin-alien) .pot-widget canvas {
+      background: #1c1917;
+    }
+
+    .preset-row {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) auto auto;
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 16px;
+    }
+
+    .voice-controls-heading {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .voice-controls-heading > label { margin: 0; }
+
+    .requires-midi-hint {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .tab-strip {
+      display: flex;
+      gap: 0;
+      flex-wrap: wrap;
+      margin-bottom: 0;
+      border-bottom: 1px solid var(--line);
+      position: relative;
+    }
+
+    .tab-button {
+      padding: 12px 18px;
+      font: inherit;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-size: 12px;
+      background: transparent;
+      color: var(--muted);
+      border: none;
+      border-bottom: 2px solid transparent;
+      border-radius: 0;
+      margin-bottom: -1px;
+      box-shadow: none;
+      cursor: pointer;
+      transition: color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .tab-button:hover:not(:disabled) {
+      color: var(--ink);
+      border-color: transparent;
+    }
+
+    .tab-button.active {
+      background: transparent;
+      color: var(--vermillion);
+      border-bottom-color: var(--vermillion);
+    }
+
+    .tab-button:disabled {
+      cursor: not-allowed;
+      opacity: 0.4;
+    }
+
+    .tab-panel {
+      padding-top: 16px;
+    }
+
+    .tab-panel[hidden] { display: none; }
+
+    .bank-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .bank-info {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .bank-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      flex: 1 1 220px;
+      min-width: 0;
+    }
+
+    .bank-actions-primary {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .bank-actions button {
+      padding: 7px 12px;
+      font-size: 11px;
+    }
+
+    .bulk-dump-panel textarea { min-height: 88px; }
+
+    .bulk-dump-hint {
+      font-size: 11px;
+      color: var(--muted);
+      align-self: center;
+    }
+
+    .bank-empty {
+      padding: 22px;
+      text-align: center;
+      color: var(--muted);
+      background: var(--panel-soft);
+      border: 1px dashed var(--line-strong);
+    }
+
+    .slot-list {
+      max-height: 60vh;
+      overflow-y: auto;
+      border: 1px solid var(--line);
+      background: var(--panel-soft);
+    }
+
+    .slot-row {
+      display: grid;
+      grid-template-columns: 130px minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+      padding: 10px 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    .slot-row:first-child { border-top: 0; }
+
+    .slot-row.modified {
+      background: color-mix(in srgb, var(--vermillion) 10%, transparent);
+    }
+
+    .slot-badge {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.2;
+    }
+
+    .slot-badge .slot-index {
+      font-weight: 700;
+      color: var(--ink);
+      font-size: 13px;
+      letter-spacing: 0.04em;
+    }
+
+    .slot-input {
+      padding: 7px 10px;
+      font-size: 13px;
+    }
+
+    .slot-actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .slot-actions button {
+      padding: 5px 9px;
+      font-size: 11px;
+    }
+
+    .slot-status {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      min-height: 12px;
+    }
+
+    .slot-status.error { color: var(--danger); }
+
+    @media (max-width: 640px) {
+      header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .status-row {
+        justify-content: flex-start;
+        width: 100%;
+      }
+
+      button,
+      select { width: 100%; }
+
+      .brand-seal { width: 48px; height: 48px; font-size: 18px; }
+
+      .connection-grid { grid-template-columns: 1fr; }
+
+      .pot-grid { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+
+      .preset-row { grid-template-columns: 1fr; }
+
+      .slot-row { grid-template-columns: 1fr; }
+
+      .slot-actions { justify-content: flex-end; }
+
+      body::after { opacity: 0.35; }
+    }
+
+    /* --- MIDI reference sheet (screen + print) --- */
+    main .panel.midi-ref-vintage {
+      background: #f7f1e6;
+      color: #1a1814;
+      box-shadow: var(--shadow);
+      font-family: var(--font-ui);
+      border-radius: var(--radius);
+      border: 1px solid #c9bfa8;
+      border-left: 3px solid var(--vermillion);
+    }
+
+    .midi-ref-vintage .midi-ref-head {
+      text-align: center;
+      border-bottom: 1px solid #c9bfa8;
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+    }
+
+    .midi-ref-vintage .midi-ref-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: none;
+      margin: 0 0 6px;
+    }
+
+    .midi-ref-vintage .midi-ref-sub {
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #4a4336;
+      margin: 0;
+    }
+
+    .midi-ref-vintage .midi-ref-block-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin: 18px 0 8px;
+      border-bottom: 1px solid #5c5344;
+      padding-bottom: 4px;
+    }
+
+    .midi-ref-vintage table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .midi-ref-vintage th,
+    .midi-ref-vintage td {
+      border: 1px solid #5c5344;
+      padding: 5px 7px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .midi-ref-vintage th {
+      background: #e6dcc8;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 10px;
+    }
+
+    .midi-ref-vintage tr:nth-child(even) td {
+      background: rgba(255, 255, 255, 0.35);
+    }
+
+    .midi-ref-vintage .col-idx {
+      width: 3.2em;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .midi-ref-vintage .col-note {
+      width: 2.6em;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .midi-ref-vintage .col-name { width: 4.2em; }
+
+    .midi-ref-vintage .col-midi {
+      color: #8f2414;
+      font-weight: 700;
+    }
+
+    .midi-ref-vintage .col-text { word-break: break-word; }
+
+    .midi-ref-vintage .midi-ref-foot {
+      margin-top: 16px;
+      padding-top: 8px;
+      border-top: 1px dashed #5c5344;
+      font-size: 10px;
+      color: #4a4336;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    @media print {
+      @page { margin: 10mm 12mm; }
+
+      html,
+      body.print-midi-sheet {
+        background: #fff !important;
+      }
+
+      body.print-midi-sheet * { visibility: hidden; }
+
+      body.print-midi-sheet #midiRefPanel,
+      body.print-midi-sheet #midiRefPanel * {
+        visibility: visible;
+      }
+
+      body.print-midi-sheet #midiRefPanel .no-print {
+        display: none !important;
+      }
+
+      body.print-midi-sheet #midiRefPanel {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        border: none;
+        border-radius: 0;
+        outline: none;
+        box-shadow: none;
+        filter: none;
+        background: #fff !important;
+        color: #000 !important;
+        font-family: "Courier New", Courier, "Nimbus Mono", monospace !important;
+        font-size: 10pt;
+        line-height: 1.3;
+        -webkit-print-color-adjust: economy;
+        print-color-adjust: economy;
+      }
+
+      body.print-midi-sheet #midiRefPanel * {
+        color: #000 !important;
+        background: transparent !important;
+        border-color: #000 !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+      }
+
+      body.print-midi-sheet #midiRefPanel .midi-ref-head {
+        padding-bottom: 8px;
+        margin-bottom: 12px;
+        border-bottom: 1px dashed #000;
+      }
+
+      body.print-midi-sheet #midiRefPanel .midi-ref-title {
+        font-weight: bold;
+        letter-spacing: 0.06em;
+        font-size: 14pt;
+      }
+
+      body.print-midi-sheet #midiRefPanel .midi-ref-sub,
+      body.print-midi-sheet #midiRefPanel .midi-ref-foot {
+        font-size: 8pt;
+        letter-spacing: 0;
+        text-transform: none;
+      }
+
+      body.print-midi-sheet #midiRefPanel .midi-ref-block-title {
+        margin-top: 14px;
+        margin-bottom: 6px;
+        padding-bottom: 2px;
+        font-size: 9pt;
+        font-weight: bold;
+        letter-spacing: 0.04em;
+        border-bottom: 1px dotted #000;
+        text-transform: uppercase;
+      }
+
+      body.print-midi-sheet #midiRefPanel table {
+        font-size: 8pt;
+        line-height: 1.25;
+        border-collapse: collapse;
+      }
+
+      body.print-midi-sheet #midiRefPanel th,
+      body.print-midi-sheet #midiRefPanel td {
+        border: 1px solid #000;
+        padding: 4px 5px;
+        vertical-align: top;
+      }
+
+      body.print-midi-sheet #midiRefPanel thead th {
+        font-weight: bold;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        border-bottom-width: 2px;
+      }
+
+      body.print-midi-sheet #midiRefPanel tbody tr:nth-child(even) td {
+        background: transparent !important;
+      }
+
+      body.print-midi-sheet #midiRefPanel code {
+        font-family: "Courier New", Courier, monospace !important;
+        font-weight: bold;
+      }
+
+      body.print-midi-sheet #midiRefPanel .col-midi { font-weight: bold; }
+
+      body.print-midi-sheet #midiRefPanel .midi-ref-foot {
+        margin-top: 12px;
+        padding-top: 6px;
+        border-top: 1px dashed #000;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <header>
+      <div class="brand">
+        <div class="brand-seal" aria-hidden="true">会話</div>
+        <div class="brand-text">
+          <h1>Kaiwa <span class="brand-vox">Vox</span></h1>
+          <p class="brand-kana">かいわ · Japanese speech chip</p>
+        </div>
+      </div>
+      <div class="status-row">
+        <div id="versionReadout" class="version-readout">GUI v1.0 | FW --</div>
+        <a class="manual-link" href="user_manual.html" target="_blank" rel="noopener noreferrer">Manual</a>
+        <a class="source-link" href="https://github.com/deladriere/Kaiwa_Designer" target="_blank"
+          rel="noopener">Source</a>
+        <select id="skinSelect" class="skin-select" aria-label="Skin">
+          <option value="amiga">Washi</option>
+          <option value="hal">Sumi</option>
+          <option value="wopr">Matcha</option>
+          <option value="moon">Sakura</option>
+          <option value="alien">Torii</option>
+        </select>
+      </div>
+    </header>
+
+    <section class="panel">
+      <div class="connection-grid">
+        <div>
+          <div class="field">
+            <div class="conn-label-row" id="serialPortLabelRow">
+              <span id="statusDot" class="dot" aria-hidden="true"></span>
+              <span id="lblSerialPort" class="pseudo-label">Serial port</span>
+            </div>
+            <div id="serialPortReadout" class="conn-readout" role="status" aria-live="polite" tabindex="0"
+              aria-labelledby="lblSerialPort">Not connected</div>
+          </div>
+          <div class="row">
+            <button id="serialConnectBtn" class="primary" type="button">Select port</button>
+            <button id="serialDisconnectBtn" type="button">Disconnect</button>
+            <button id="serialIdentifyBtn" type="button">Identify Serial</button>
+            <button id="serialRefreshBtn" type="button">Refresh</button>
+          </div>
+        </div>
+        <div>
+          <div class="field">
+            <div class="conn-label-row">
+              <span id="midiStatusDot" class="dot" aria-hidden="true"></span>
+              <label for="midiOutputSelect"><span id="lblMidiPort" class="pseudo-label">MIDI output</span></label>
+            </div>
+            <div class="midi-settings-row">
+              <div id="midiOutputPickWrap">
+                <select id="midiOutputSelect">
+                  <option value="">Not connected</option>
+                </select>
+              </div>
+              <div class="midi-channel-field">
+                <label for="midiChannelSelect">Channel</label>
+                <select id="midiChannelSelect" aria-describedby="midiDipHint">
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                  <option value="8">8</option>
+                  <option value="9">9</option>
+                  <option value="10">10</option>
+                  <option value="11">11</option>
+                  <option value="12">12</option>
+                  <option value="13">13</option>
+                  <option value="14">14</option>
+                  <option value="15">15</option>
+                </select>
+              </div>
+            </div>
+            <p id="midiDipHint" class="dip-hint">Firmware 1.3: match the channel number set by DIP1–DIP4, then reset the
+              board. All OFF selects Omni.</p>
+            <div id="midiOutputHint" class="conn-hint" aria-live="polite"></div>
+            <div id="midiOutputReadout" class="conn-readout" role="status" aria-live="polite" hidden tabindex="0"
+              aria-labelledby="lblMidiPort"></div>
+          </div>
+          <div class="row">
+            <button id="midiConnectBtn" class="primary" type="button">Connect MIDI</button>
+            <button id="midiIdentifyBtn" type="button">Identify MIDI</button>
+            <button id="midiRefreshBtn" type="button">Refresh</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <nav class="tab-strip" role="tablist">
+      <button id="tabBtnLive" class="tab-button active" type="button" role="tab" aria-controls="liveTab"
+        data-tab="live">Live Speak</button>
+      <button id="tabBtnRam" class="tab-button" type="button" role="tab" aria-controls="ramTab" data-tab="ram">RAM
+        Sentences</button>
+      <button id="tabBtnFram" class="tab-button" type="button" role="tab" aria-controls="framTab" data-tab="fram"
+        disabled title="No FRAM detected on this board">FRAM Sentences</button>
+    </nav>
+
+    <section id="midiRefPanel" class="midi-ref-vintage panel" hidden>
+      <div class="no-print row" style="margin-bottom:14px;">
+        <button id="midiRefRefreshBtn" type="button">Refresh from form</button>
+        <button id="midiRefPrintBtn" class="primary" type="button">Print…</button>
+        <button id="midiRefCloseBtn" type="button">Hide sheet</button>
+      </div>
+      <div id="midiRefBody"></div>
+    </section>
+
+    <div id="liveTab" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnLive">
+      <section class="panel">
+        <div class="field">
+          <label for="speakText">Text to speak</label>
+          <textarea id="speakText" placeholder="maka-/hannya-haramita-/si'n-gyo-."></textarea>
+        </div>
+        <div class="row">
+          <button id="speakBtn" class="primary" type="button">Speak</button>
+          <button id="clearBtn" type="button">Clear</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="field">
+          <div class="voice-controls-heading">
+            <label>Voice controls</label>
+            <span class="requires-midi-hint"
+              title="MIDI: CC1 speed, pitch bend, CC2 accent, CC3 vowels. Serial: !VOICE.">AquesTalk</span>
+          </div>
+          <div class="preset-row">
+            <div class="field" style="margin-bottom: 0;">
+              <label for="voicePresetSelect">Voice preset</label>
+              <select id="voicePresetSelect">
+                <option value="">Custom</option>
+                <option value="default">Default</option>
+                <option value="fast">Fast</option>
+                <option value="slow">Slow</option>
+                <option value="high">High</option>
+                <option value="low">Low</option>
+                <option value="drawl">Drawl</option>
+              </select>
+            </div>
+            <button id="randomVoiceBtn" type="button">Random</button>
+            <button id="resetVoiceBtn" type="button">Reset to default</button>
+          </div>
+          <div class="pot-grid">
+            <div class="pot">
+              <div id="speedPot" class="pot-widget"></div>
+              <div class="pot-label">Speed</div>
+              <div class="pot-map">CC 1 · 50–300</div>
+              <div id="speedValue" class="pot-value">80</div>
+            </div>
+            <div class="pot">
+              <div id="pitchPot" class="pot-widget"></div>
+              <div class="pot-label">Pitch</div>
+              <div class="pot-map">Bend · up = higher</div>
+              <div id="pitchValue" class="pot-value">64</div>
+            </div>
+            <div class="pot">
+              <div id="accentPot" class="pot-widget"></div>
+              <div class="pot-label">Accent</div>
+              <div class="pot-map">CC 2 · 0–255</div>
+              <div id="accentValue" class="pot-value">100</div>
+            </div>
+            <div class="pot">
+              <div id="vowelsPot" class="pot-widget"></div>
+              <div class="pot-label">Vowels</div>
+              <div class="pot-map">CC 3 · 0–6</div>
+              <div id="vowelsValue" class="pot-value">0</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="ramTab" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnRam" hidden>
+      <section class="panel">
+        <div class="bank-header">
+          <div class="bank-info" id="ramBankInfo">RAM — 20 slots · row #0 = MIDI 28 · notes 28–47</div>
+          <div class="bank-actions">
+            <div class="bank-actions-primary">
+              <button id="ramReloadBtn" type="button">Reload from board</button>
+              <button id="ramSaveAllBtn" type="button">Save all changed</button>
+            </div>
+            <button id="ramRefSheetBtn" type="button" title="Printable RAM map (row # · MIDI note · text)">Reference
+              sheet…</button>
+          </div>
+        </div>
+        <div class="field bulk-dump-panel">
+          <label for="ramBulkDump">Bulk paste · one non-empty line per slot (blank lines ignored)</label>
+          <textarea id="ramBulkDump" spellcheck="false"
+            placeholder="Sentence for slot #0&#10;Sentence for slot #1&#10;…"></textarea>
+          <div class="row" style="align-items: center; flex-wrap: wrap; gap: 10px;">
+            <button id="ramBulkApplyBtn" type="button">Fill RAM slots</button>
+            <span id="ramBulkHint" class="bulk-dump-hint"></span>
+          </div>
+        </div>
+        <div id="ramSlotList" class="slot-list"></div>
+      </section>
+    </div>
+
+    <div id="framTab" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnFram" hidden>
+      <section class="panel">
+        <div class="bank-header">
+          <div class="bank-info" id="framBankInfo">FRAM — storage + MIDI notes start at 48 (not 28); row #0 = MIDI 48
+          </div>
+          <div class="bank-actions">
+            <div class="bank-actions-primary">
+              <button id="framReloadBtn" type="button">Reload from board</button>
+              <button id="framSaveAllBtn" type="button">Save all changed</button>
+            </div>
+            <button id="framRefSheetBtn" type="button" title="Printable FRAM map (row # · MIDI note · text)">Reference
+              sheet…</button>
+          </div>
+        </div>
+        <div class="field bulk-dump-panel">
+          <label for="framBulkDump">Bulk paste · one non-empty line per slot (blank lines ignored)</label>
+          <textarea id="framBulkDump" spellcheck="false"
+            placeholder="Sentence for slot #0&#10;Sentence for slot #1&#10;…"></textarea>
+          <div class="row" style="align-items: center; flex-wrap: wrap; gap: 10px;">
+            <button id="framBulkApplyBtn" type="button">Fill FRAM slots</button>
+            <span id="framBulkHint" class="bulk-dump-hint"></span>
+          </div>
+        </div>
+        <div id="framSlotList" class="slot-list">
+          <div class="bank-empty">Connect to a board with FRAM (RC256 at 0x50) to edit sentences.</div>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel">
+      <div class="field">
+        <label for="serialIncoming">Serial monitor</label>
+        <pre id="serialIncoming"></pre>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/nexusui@latest/dist/NexusUI.js"></script>
+  <script>
+    (function () {
+      let serialPort = null;
+      let serialWriter = null;
+      let serialReader = null;
+      let serialDecoder = null;
+      let serialReadableClosed = null;
+      let rememberedPorts = [];
+      let midiAccess = null;
+      let midiOutput = null;
+      let midiOutputLabels = new Map();
+      let voicePotsReady = false;
+      const voiceDials = {};
+
+      const GUI_VERSION = '1.0';
+      const DEFAULT_RAM_SLOTS = 20;
+      const DEFAULT_RAM_BASE = 28;
+      const DEFAULT_SENTENCE_MAX = 200;
+      const boardCaps = {
+        ram: 0,
+        fram: 0,
+        ramBase: DEFAULT_RAM_BASE,
+        framMidiBase: 48,
+        framMidiSlots: 80,
+        max: DEFAULT_SENTENCE_MAX,
+        ver: '',
+        model: '',
+        id: ''
+      };
+      const STORAGE_COMMAND_TIMEOUT_MS = 120000;
+      const slotState = { R: [], F: [] };
+      let serialLineBuffer = '';
+      const pendingAcks = [];
+      const pendingDumpEnds = [];
+      let commandChain = Promise.resolve();
+      let activeTab = 'live';
+      let framSyncedOnce = false;
+      let infoHandshakeResolve = null;
+      let midiRefScope = 'R';
+
+      function rejectAllSerialQueues(reason) {
+        const msg = reason || 'disconnect';
+        while (pendingAcks.length) {
+          const e = pendingAcks.shift();
+          clearTimeout(e.timer);
+          try { e.reject(new Error(msg)); } catch { }
+        }
+        while (pendingDumpEnds.length) {
+          const e = pendingDumpEnds.shift();
+          clearTimeout(e.timer);
+          try { e.reject(new Error(msg)); } catch { }
+        }
+      }
+      const voicePresets = {
+        default: { label: 'Default', speed: 80, pitch: 64, accent: 100, vowels: 0 },
+        fast: { label: 'Fast', speed: 140, pitch: 64, accent: 100, vowels: 0 },
+        slow: { label: 'Slow', speed: 55, pitch: 70, accent: 120, vowels: 1 },
+        high: { label: 'High', speed: 90, pitch: 28, accent: 90, vowels: 0 },
+        low: { label: 'Low', speed: 75, pitch: 150, accent: 110, vowels: 0 },
+        drawl: { label: 'Drawl', speed: 70, pitch: 80, accent: 140, vowels: 3 }
+      };
+      const VOICE_SETTINGS_STORAGE_KEY = 'kaiwaVoiceSettings';
+      const VOICE_RANGES = {
+        speed: { min: 50, max: 300 },
+        pitch: { min: 0, max: 254 },
+        accent: { min: 0, max: 255 },
+        vowels: { min: 0, max: 6 }
+      };
+      let voiceSerialTimer = null;
+
+      function clampVoiceValue(value, keyOrFallback, maybeFallback) {
+        const hasKey = typeof keyOrFallback === 'string' && VOICE_RANGES[keyOrFallback];
+        const key = hasKey ? keyOrFallback : null;
+        const fallback = hasKey ? maybeFallback : keyOrFallback;
+        const range = key ? VOICE_RANGES[key] : { min: 0, max: 255 };
+        const number = Number(value);
+        return Number.isFinite(number)
+          ? Math.max(range.min, Math.min(range.max, Math.round(number)))
+          : fallback;
+      }
+
+      function mapRange(value, inMin, inMax, outMin, outMax) {
+        if (inMax === inMin) return outMin;
+        return outMin + ((value - inMin) * (outMax - outMin)) / (inMax - inMin);
+      }
+
+      function readVoiceSettings() {
+        const defaults = voicePresets.default;
+        return {
+          speed: clampVoiceValue(document.getElementById('speedValue')?.textContent, 'speed', defaults.speed),
+          pitch: clampVoiceValue(document.getElementById('pitchValue')?.textContent, 'pitch', defaults.pitch),
+          accent: clampVoiceValue(document.getElementById('accentValue')?.textContent, 'accent', defaults.accent),
+          vowels: clampVoiceValue(document.getElementById('vowelsValue')?.textContent, 'vowels', defaults.vowels)
+        };
+      }
+
+      function loadVoiceSettings() {
+        const defaults = voicePresets.default;
+        try {
+          const saved = JSON.parse(localStorage.getItem(VOICE_SETTINGS_STORAGE_KEY) || '{}');
+          return {
+            speed: clampVoiceValue(saved.speed, 'speed', defaults.speed),
+            pitch: clampVoiceValue(saved.pitch, 'pitch', defaults.pitch),
+            accent: clampVoiceValue(saved.accent, 'accent', defaults.accent),
+            vowels: clampVoiceValue(saved.vowels, 'vowels', defaults.vowels)
+          };
+        } catch {
+          return { ...defaults };
+        }
+      }
+
+      function saveVoiceSettings() {
+        try {
+          localStorage.setItem(VOICE_SETTINGS_STORAGE_KEY, JSON.stringify(readVoiceSettings()));
+        } catch {
+        }
+      }
+      const skinNexusColors = {
+        amiga: { accent: '#c23b22', fill: '#f3efe6', dark: '#1c1917', light: '#faf7f0', medium: '#8a8170' },
+        hal: { accent: '#e8452f', fill: '#2a2623', dark: '#0d0c0b', light: '#f0ebe3', medium: '#5a5248' },
+        wopr: { accent: '#c7a24a', fill: '#1f2a22', dark: '#0c120e', light: '#e8f0e4', medium: '#5f7a62' },
+        moon: { accent: '#c45c7a', fill: '#fff7f9', dark: '#3a2430', light: '#fffafb', medium: '#b89aa6' },
+        alien: { accent: '#d94a2b', fill: '#1a2338', dark: '#0b1020', light: '#e8eef8', medium: '#4a5d82' }
+      };
+
+      function applyNexusSkin(name) {
+        if (!window.Nexus || !Nexus.colors) return;
+        const colors = skinNexusColors[name] || skinNexusColors.amiga;
+        Nexus.colors.accent = colors.accent;
+        Nexus.colors.fill = colors.fill;
+        Nexus.colors.dark = colors.dark;
+        Nexus.colors.light = colors.light;
+        Nexus.colors.medium = colors.medium;
+      }
+
+      function applySkin(name) {
+        const skin = skinNexusColors[name] ? name : 'amiga';
+        document.body.classList.remove('skin-hal', 'skin-wopr', 'skin-moon', 'skin-alien');
+        if (skin !== 'amiga') document.body.classList.add(`skin-${skin}`);
+        const select = document.getElementById('skinSelect');
+        if (select) select.value = skin;
+        localStorage.setItem('samSpeakerSkin', skin);
+        applyNexusSkin(skin);
+      }
+
+      const supportsSerial = 'serial' in navigator;
+      const supportsMidi = 'requestMIDIAccess' in navigator;
+
+      function chipPitchFromDial(dialValue) {
+        return 254 - clampVoiceValue(dialValue, 'pitch', 0);
+      }
+
+      function dialPitchFromChip(chipValue) {
+        return 254 - clampVoiceValue(chipValue, 'pitch', 64);
+      }
+
+      function initVoicePots() {
+        if (!window.Nexus) {
+          appendSerialLog('<< NexusUI failed to load; pots unavailable\r\n');
+          return;
+        }
+
+        applyNexusSkin(document.getElementById('skinSelect')?.value || 'amiga');
+
+        const savedVoice = loadVoiceSettings();
+        const configs = [
+          { key: 'speed', selector: '#speedPot', value: savedVoice.speed, output: 'speedValue', kind: 'cc', cc: 1, label: 'speed' },
+          { key: 'pitch', selector: '#pitchPot', value: savedVoice.pitch, output: 'pitchValue', kind: 'bend', label: 'pitch' },
+          { key: 'accent', selector: '#accentPot', value: savedVoice.accent, output: 'accentValue', kind: 'cc', cc: 2, label: 'accent' },
+          { key: 'vowels', selector: '#vowelsPot', value: savedVoice.vowels, output: 'vowelsValue', kind: 'cc', cc: 3, label: 'vowels' }
+        ];
+
+        configs.forEach(config => {
+          try {
+            const range = VOICE_RANGES[config.key];
+            const output = document.getElementById(config.output);
+            const dialValue = config.key === 'pitch'
+              ? dialPitchFromChip(config.value)
+              : config.value;
+            if (output) output.textContent = String(config.value);
+            const dial = new Nexus.Dial(config.selector, {
+              size: [92, 92],
+              interaction: 'radial',
+              mode: 'relative',
+              min: range.min,
+              max: range.max,
+              step: 1,
+              value: dialValue
+            });
+            voiceDials[config.key] = { dial, config };
+            dial.on('change', value => {
+              const rounded = clampVoiceValue(value, config.key, range.min);
+              const chipValue = config.key === 'pitch'
+                ? chipPitchFromDial(rounded)
+                : rounded;
+              const el = document.getElementById(config.output);
+              if (el) el.textContent = String(chipValue);
+              saveVoiceSettings();
+              if (voicePotsReady) {
+                sendMidiControl(config, chipValue);
+                scheduleVoiceSerialSync();
+              }
+            });
+          } catch {
+          }
+        });
+
+        setTimeout(() => { voicePotsReady = true; }, 250);
+      }
+
+      function setDialValue(key, value, sendMidi) {
+        const entry = voiceDials[key];
+        const range = VOICE_RANGES[key] || { min: 0, max: 255 };
+        const rounded = clampVoiceValue(value, key, range.min);
+        const output = document.getElementById(`${key}Value`);
+        if (output) output.textContent = String(rounded);
+        saveVoiceSettings();
+
+        if (entry && entry.dial) {
+          const previous = voicePotsReady;
+          voicePotsReady = false;
+          try {
+            entry.dial.value = key === 'pitch' ? dialPitchFromChip(rounded) : rounded;
+          } catch {
+          }
+          voicePotsReady = previous;
+          if (sendMidi) sendMidiControl(entry.config, rounded);
+        }
+        if (sendMidi) scheduleVoiceSerialSync();
+      }
+
+      function applyVoicePreset(name, sendMidi) {
+        const preset = voicePresets[name] || voicePresets.default;
+        setDialValue('speed', preset.speed, sendMidi);
+        setDialValue('pitch', preset.pitch, sendMidi);
+        setDialValue('accent', preset.accent, sendMidi);
+        setDialValue('vowels', preset.vowels, sendMidi);
+        appendSerialLog(`<< PRESET ${preset.label} speed=${preset.speed} pitch=${preset.pitch} accent=${preset.accent} vowels=${preset.vowels}\r\n`);
+      }
+
+      function randomBetween(min, max) {
+        return Math.round(min + Math.random() * (max - min));
+      }
+
+      function randomizeVoice(sendMidi) {
+        const preset = {
+          label: 'Random',
+          speed: randomBetween(55, 180),
+          pitch: randomBetween(20, 180),
+          accent: randomBetween(40, 220),
+          vowels: randomBetween(0, 4)
+        };
+        setDialValue('speed', preset.speed, sendMidi);
+        setDialValue('pitch', preset.pitch, sendMidi);
+        setDialValue('accent', preset.accent, sendMidi);
+        setDialValue('vowels', preset.vowels, sendMidi);
+        appendSerialLog(`<< RANDOM speed=${preset.speed} pitch=${preset.pitch} accent=${preset.accent} vowels=${preset.vowels}\r\n`);
+      }
+
+      function chipValueToMidiCc(key, value) {
+        if (key === 'speed') return Math.max(0, Math.min(127, Math.round(mapRange(value, 50, 300, 0, 127))));
+        if (key === 'accent') return Math.max(0, Math.min(127, Math.round(mapRange(value, 0, 255, 0, 127))));
+        if (key === 'vowels') return Math.max(0, Math.min(127, Math.round(mapRange(value, 0, 6, 0, 127))));
+        return Math.max(0, Math.min(127, Math.round(value)));
+      }
+
+      function pitchToBendValue(pitch) {
+        // Firmware: map(bend, -8192, 8191, 254, 0) — lower pitch register = higher voice.
+        const bendSigned = Math.round(mapRange(pitch, 0, 254, 8191, -8192));
+        return Math.max(0, Math.min(16383, bendSigned + 8192));
+      }
+
+      function scheduleVoiceSerialSync() {
+        if (voiceSerialTimer) clearTimeout(voiceSerialTimer);
+        voiceSerialTimer = setTimeout(() => {
+          voiceSerialTimer = null;
+          sendVoiceSerial().catch(() => { });
+        }, 120);
+      }
+
+      async function sendVoiceSerial() {
+        if (!serialWriter) return;
+        const v = readVoiceSettings();
+        await sendSerialLine(`!VOICE ${v.speed} ${v.pitch} ${v.accent} ${v.vowels}`);
+      }
+
+      function appendSerialLog(text) {
+        const pre = document.getElementById('serialIncoming');
+        if (!pre) return;
+        pre.textContent += text;
+        pre.scrollTop = pre.scrollHeight;
+      }
+
+      async function listRememberedPorts() {
+        if (!supportsSerial) return;
+        try {
+          rememberedPorts = await navigator.serial.getPorts();
+          updateSerialUi();
+        } catch {
+        }
+      }
+
+      function updateSerialUi() {
+        const connected = Boolean(serialPort && serialPort.readable && serialPort.writable);
+        const button = document.getElementById('serialConnectBtn');
+        const disconnectButton = document.getElementById('serialDisconnectBtn');
+        const identifyButton = document.getElementById('serialIdentifyBtn');
+        const readout = document.getElementById('serialPortReadout');
+        const dot = document.getElementById('statusDot');
+        const speak = document.getElementById('speakBtn');
+
+        if (button) button.textContent = connected ? 'Change port' : 'Select port';
+        if (disconnectButton) disconnectButton.disabled = !connected;
+        if (identifyButton) identifyButton.disabled = !connected;
+        const midiIdentifyButton = document.getElementById('midiIdentifyBtn');
+        if (midiIdentifyButton) midiIdentifyButton.disabled = !(connected && midiOutput);
+        if (dot) dot.classList.toggle('connected', connected);
+        if (readout) {
+          if (!connected) {
+            readout.textContent = rememberedPorts.length === 0
+              ? 'Not connected'
+              : `${rememberedPorts.length} saved port(s) — use Select port`;
+          } else {
+            const model = boardCaps.model || 'Kraftor';
+            readout.textContent = boardCaps.id
+              ? `${model} · ID ${boardCaps.id}`
+              : model;
+          }
+        }
+        if (speak) speak.disabled = !connected;
+      }
+
+      async function startSerialReader() {
+        try {
+          if (!serialPort || !serialPort.readable || serialReader) return;
+
+          if ('TextDecoderStream' in window) {
+            serialDecoder = new TextDecoderStream();
+            serialReadableClosed = serialPort.readable.pipeTo(serialDecoder.writable);
+            serialReader = serialDecoder.readable.getReader();
+          } else {
+            serialDecoder = null;
+            serialReadableClosed = null;
+            serialReader = serialPort.readable.getReader();
+          }
+
+          appendSerialLog('<< READER READY\r\n');
+          const byteDecoder = (!serialDecoder && typeof TextDecoder !== 'undefined') ? new TextDecoder() : null;
+
+          while (true) {
+            const result = await serialReader.read();
+            if (result.done) break;
+            const value = result.value;
+            const chunk = (typeof value === 'string') ? value : (byteDecoder ? byteDecoder.decode(value) : '');
+            if (chunk) processSerialChunk(chunk);
+          }
+        } catch {
+        }
+      }
+
+      async function requestAndConnect() {
+        try {
+          serialPort = await navigator.serial.requestPort();
+          await serialPort.open({ baudRate: 115200 });
+          serialWriter = serialPort.writable ? serialPort.writable.getWriter() : null;
+          await listRememberedPorts();
+          appendSerialLog('<< CONNECTED\r\n');
+          startSerialReader();
+          requestBoardInfo();
+        } catch {
+          appendSerialLog('<< CONNECT FAILED\r\n');
+        }
+      }
+
+      async function disconnectSerial() {
+        try {
+          if (serialReader) {
+            try { await serialReader.cancel(); } catch { }
+            try { serialReader.releaseLock(); } catch { }
+            serialReader = null;
+          }
+          if (serialReadableClosed) {
+            try { await serialReadableClosed.catch(() => { }); } catch { }
+            serialReadableClosed = null;
+          }
+          serialDecoder = null;
+          if (serialWriter) {
+            serialWriter.releaseLock();
+            serialWriter = null;
+          }
+          if (serialPort) await serialPort.close();
+        } catch {
+        }
+        serialPort = null;
+        rejectAllSerialQueues();
+        resetBoardState();
+        updateSerialUi();
+        appendSerialLog('<< DISCONNECTED\r\n');
+      }
+
+      async function sendSerialLine(line) {
+        if (!serialWriter) return;
+        const text = String(line || '').trim();
+        if (!text) return;
+
+        const encoder = new TextEncoder();
+        await serialWriter.write(encoder.encode(text + '\r\n'));
+        appendSerialLog(`>> ${text}\r\n`);
+      }
+
+      async function speakText() {
+        const input = document.getElementById('speakText');
+        if (voiceSerialTimer) {
+          clearTimeout(voiceSerialTimer);
+          voiceSerialTimer = null;
+        }
+        try {
+          await sendVoiceSerial();
+        } catch {
+        }
+        await sendSerialLine(input ? input.value : '');
+      }
+
+      async function identifySerialBoard() {
+        // Speak over the open serial port so you can hear which physical board it is.
+        await sendSerialLine('si-riaru.');
+      }
+
+      const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+      function midiNoteName(note) {
+        return NOTE_NAMES[note % 12] + (Math.floor(note / 12) - 1);
+      }
+
+      function escapeHtml(s) {
+        return String(s || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function slotCellText(store, idx) {
+        const el = document.getElementById(`slot-${store}-${idx}`);
+        if (el && typeof el.value === 'string') return el.value.trim();
+        const arr = slotState[store];
+        if (arr && arr[idx]) return String(arr[idx].savedText || '').trim();
+        return '';
+      }
+
+      /** Last index in [lo, hi) with non-empty slot text, or -1 if none. */
+      function lastNonEmptySlotIndex(store, lo, hi) {
+        for (let i = hi - 1; i >= lo; i--) {
+          if (slotCellText(store, i)) return i;
+        }
+        return -1;
+      }
+
+      function renderMidiReferenceSheet(forceScope) {
+        if (forceScope === 'R' || forceScope === 'F') {
+          midiRefScope = forceScope;
+        }
+        const which = midiRefScope;
+        const body = document.getElementById('midiRefBody');
+        if (!body) return;
+
+        const ramN = boardCaps.ram > 0 ? boardCaps.ram : 20;
+        const ramBase = Number.isFinite(boardCaps.ramBase) ? boardCaps.ramBase : 28;
+        const framN = boardCaps.fram > 0 ? boardCaps.fram : 0;
+        const fMidiBase = Number.isFinite(boardCaps.framMidiBase) ? boardCaps.framMidiBase : 48;
+        const fMidiSlots = framN
+          ? Math.max(0, Math.min(
+            Number.isFinite(boardCaps.framMidiSlots) ? boardCaps.framMidiSlots : framN,
+            Math.max(0, 128 - fMidiBase),
+            framN
+          ))
+          : 0;
+
+        const scopeLabel = which === 'R' ? 'RAM bank — temporary sentences' : 'FRAM bank — persistent storage';
+
+        const firmwareLine = boardCaps.ver
+          ? `Firmware reported version ${escapeHtml(boardCaps.ver)}.`
+          : '';
+        let head = '<div class="midi-ref-head"><h2 class="midi-ref-title">Kaiwa Vox</h2>';
+        head += '<p class="midi-ref-sub">' + escapeHtml(scopeLabel) + '</p>';
+        head += '<p class="midi-ref-sub">Row index · MIDI note · sentence text</p>';
+        head += `<p class="midi-ref-sub">${escapeHtml(new Date().toLocaleString())}</p>`;
+        head += firmwareLine
+          ? `<p class="midi-ref-sub">${firmwareLine}</p>`
+          : '<p class="midi-ref-sub">Connect serial to sync slot counts with the board.</p>';
+        head += '</div>';
+
+        let ramTbl = '';
+        if (which === 'R') {
+          const ramLast = lastNonEmptySlotIndex('R', 0, ramN);
+          ramTbl =
+            '<h3 class="midi-ref-block-title">RAM (MIDI range)</h3>' +
+            '<p class="midi-ref-sub" style="margin:-4px 0 10px;text-align:left;text-transform:none;' +
+            'letter-spacing:0;color:#333;">Row <strong>#0</strong> = MIDI <strong>' + ramBase + '</strong> · Notes <strong>' +
+            ramBase + '</strong>–<strong>' + (ramBase + ramN - 1) + '</strong> (same channel as FRAM).</p>';
+          if (ramLast < 0) {
+            ramTbl += '<p class="midi-ref-sub" style="margin:0 0 10px;text-align:left;text-transform:none;' +
+              'letter-spacing:0;color:#333;">No non-empty RAM slots in the form.</p>';
+          } else {
+            ramTbl +=
+              '<table><thead><tr>' +
+              '<th class="col-idx">#</th>' +
+              '<th class="col-note col-midi">MIDI</th>' +
+              '<th class="col-name">Name</th>' +
+              '<th class="col-text">Sentence</th>' +
+              '</tr></thead><tbody>';
+            for (let i = 0; i <= ramLast; i++) {
+              const note = ramBase + i;
+              const textRaw = slotCellText('R', i);
+              const cell = escapeHtml(textRaw) || '&mdash;';
+              ramTbl += '<tr>' +
+                '<td class="col-idx">' + i + '</td>' +
+                '<td class="col-note col-midi">' + note + '</td>' +
+                '<td class="col-name">' + escapeHtml(midiNoteName(note)) + '</td>' +
+                '<td class="col-text">' + cell + '</td></tr>';
+            }
+            ramTbl += '</tbody></table>';
+          }
+        }
+
+        let framTb = '';
+        if (which === 'F') {
+          if (framN > 0) {
+            if (fMidiSlots > 0) {
+              const midiLast = lastNonEmptySlotIndex('F', 0, fMidiSlots);
+              framTb +=
+                '<h3 class="midi-ref-block-title">FRAM — MIDI-triggered slots</h3>' +
+                '<p class="midi-ref-sub" style="margin:-4px 0 10px;text-align:left;text-transform:none;' +
+                'letter-spacing:0;color:#333;">Row <strong>#0</strong> = MIDI <strong>' + fMidiBase + '</strong> · Notes <strong>' +
+                fMidiBase + '</strong>–<strong>' + (fMidiBase + fMidiSlots - 1) + '</strong>.</p>';
+              if (midiLast < 0) {
+                framTb += '<p class="midi-ref-sub" style="margin:0 0 10px;text-align:left;text-transform:none;' +
+                  'letter-spacing:0;color:#333;">No non-empty MIDI-triggered FRAM slots in the form.</p>';
+              } else {
+                framTb +=
+                  '<table><thead><tr>' +
+                  '<th class="col-idx">#</th>' +
+                  '<th class="col-note col-midi">MIDI</th>' +
+                  '<th class="col-name">Name</th>' +
+                  '<th class="col-text">Sentence</th>' +
+                  '</tr></thead><tbody>';
+                for (let i = 0; i <= midiLast; i++) {
+                  const note = fMidiBase + i;
+                  const textRaw = slotCellText('F', i);
+                  const cell = escapeHtml(textRaw) || '&mdash;';
+                  framTb += '<tr>' +
+                    '<td class="col-idx">' + i + '</td>' +
+                    '<td class="col-note col-midi">' + note + '</td>' +
+                    '<td class="col-name">' + escapeHtml(midiNoteName(note)) + '</td>' +
+                    '<td class="col-text">' + cell + '</td></tr>';
+                }
+                framTb += '</tbody></table>';
+              }
+            }
+
+            const extraStart = fMidiSlots;
+            const guiLast = extraStart < framN
+              ? lastNonEmptySlotIndex('F', extraStart, framN)
+              : -1;
+            if (extraStart < framN && guiLast >= extraStart) {
+              framTb +=
+                '<h3 class="midi-ref-block-title">FRAM — GUI / serial only</h3>' +
+                '<p class="midi-ref-sub" style="margin:-4px 0 10px;text-align:left;text-transform:none;' +
+                'letter-spacing:0;color:#333;">Rows <strong>#' + extraStart + '</strong>–<strong>#' +
+                (framN - 1) + '</strong> (bank) — listed through <strong>#' + guiLast +
+                '</strong>. No MIDI note (use GUI Play or <code>!PLAY F idx</code>).</p>' +
+                '<table><thead><tr>' +
+                '<th class="col-idx">#</th>' +
+                '<th class="col-note">MIDI</th>' +
+                '<th class="col-name"> </th>' +
+                '<th class="col-text">Sentence</th>' +
+                '</tr></thead><tbody>';
+              for (let i = extraStart; i <= guiLast; i++) {
+                const textRaw = slotCellText('F', i);
+                const cell = escapeHtml(textRaw) || '&mdash;';
+                framTb += '<tr>' +
+                  '<td class="col-idx">' + i + '</td>' +
+                  '<td class="col-note">&mdash;</td>' +
+                  '<td class="col-name">&mdash;</td>' +
+                  '<td class="col-text">' + cell + '</td></tr>';
+              }
+              framTb += '</tbody></table>';
+            }
+          } else {
+            framTb +=
+              '<p class="midi-ref-sub" style="text-align:left;text-transform:none;letter-spacing:0;color:#333;">' +
+              'FRAM was not detected on the last handshake. Open the RAM tab for a RAM-only sheet, or reconnect a board with FRAM.</p>';
+          }
+        }
+
+        const foot =
+          '<div class="midi-ref-foot">Printed from Kaiwa Vox · Refresh from form after edits · Omni receive · ' +
+          (which === 'R' ? 'RAM bank reference.' : 'FRAM bank reference.') +
+          '</div>';
+
+        body.innerHTML = head + ramTbl + framTb + foot;
+      }
+
+      function openMidiRef(scope) {
+        renderMidiReferenceSheet(scope);
+        const p = document.getElementById('midiRefPanel');
+        if (p) p.hidden = false;
+        p?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      function printMidiReferenceSheet() {
+        renderMidiReferenceSheet();
+        const panel = document.getElementById('midiRefPanel');
+        if (panel) panel.hidden = false;
+        document.body.classList.add('print-midi-sheet');
+        requestAnimationFrame(() => {
+          setTimeout(() => window.print(), 60);
+        });
+      }
+
+      window.addEventListener('afterprint', () => {
+        document.body.classList.remove('print-midi-sheet');
+      });
+
+      function processSerialChunk(chunk) {
+        serialLineBuffer += chunk;
+        let nl;
+        while ((nl = serialLineBuffer.indexOf('\n')) >= 0) {
+          const raw = serialLineBuffer.slice(0, nl);
+          serialLineBuffer = serialLineBuffer.slice(nl + 1);
+          const lineRaw = raw.replace(/\r$/, '');
+          appendSerialLog(lineRaw + '\r\n');
+          const normalized = normalizeProtocolLine(lineRaw);
+          if (!normalized.startsWith('!')) continue;
+          dispatchSerialLine(normalized);
+        }
+      }
+
+      /** Strip stray serial-monitor prompts so "!OK" is recognized (e.g. "> !OK"). */
+      function normalizeProtocolLine(line) {
+        let s = line.replace(/\r$/, '').trim();
+        while (s.charAt(0) === '>') {
+          let i = 1;
+          while (i < s.length && (s[i] === ' ' || s[i] === '\t')) i++;
+          s = s.slice(i).trim();
+        }
+        return s;
+      }
+
+      function dispatchSerialLine(line) {
+        if (line.startsWith('!INFO ')) { handleInfoReply(line); return; }
+        if (line.startsWith('!SENT ')) { handleSentReply(line); return; }
+        if (line.startsWith('!END ')) { handleEndReply(line); return; }
+        if (line === '!OK' || line.startsWith('!OK ')) { handleAckReply(true, line); return; }
+        if (line.startsWith('!ERR ')) { handleAckReply(false, line); return; }
+      }
+
+      function handleAckReply(ok, line) {
+        const entry = pendingAcks.shift();
+        if (!entry) return;
+        clearTimeout(entry.timer);
+        if (ok) entry.resolve(line);
+        else entry.reject(new Error(line.slice(5).trim() || 'error'));
+      }
+
+      function awaitAck(timeoutMs) {
+        return new Promise((resolve, reject) => {
+          const entry = { resolve, reject };
+          entry.timer = setTimeout(() => {
+            const i = pendingAcks.indexOf(entry);
+            if (i >= 0) pendingAcks.splice(i, 1);
+            reject(new Error('timeout'));
+          }, timeoutMs ?? 12000);
+          pendingAcks.push(entry);
+        });
+      }
+
+      /** Wait for '!END R' / '!END F' after '!DUMP …' — register before transmitting. */
+      function registerDumpWaiter(store, timeoutMs) {
+        const tag = store === 'R' || store === 'F' ? store : '?';
+        return new Promise((resolve, reject) => {
+          const entry = { store: tag, resolve, reject };
+          entry.timer = setTimeout(() => {
+            const j = pendingDumpEnds.indexOf(entry);
+            if (j >= 0) pendingDumpEnds.splice(j, 1);
+            reject(new Error('dump timeout'));
+          }, timeoutMs ?? 90000);
+          pendingDumpEnds.push(entry);
+        });
+      }
+
+      function sendCommand(line, opts) {
+        const wantsAck = !!(opts && opts.ack);
+        const dumpStore = opts && opts.waitDump;
+        const next = commandChain.then(async () => {
+          const dumpPromise = dumpStore ? registerDumpWaiter(dumpStore) : null;
+          const ackPromise = wantsAck ? awaitAck(opts && opts.timeoutMs) : null;
+          await sendSerialLine(line);
+          if (dumpPromise) await dumpPromise;
+          if (ackPromise) await ackPromise;
+        });
+        commandChain = next.catch(() => { });
+        return next;
+      }
+
+      function requestBoardInfo() {
+        if (infoHandshakeResolve) {
+          try { infoHandshakeResolve(false); } catch { }
+          infoHandshakeResolve = null;
+        }
+
+        const tryOnce = (waitMs) => new Promise(resolve => {
+          infoHandshakeResolve = resolve;
+          sendCommand('!INFO?').catch(() => { });
+          setTimeout(() => {
+            if (infoHandshakeResolve === resolve) {
+              infoHandshakeResolve = null;
+              resolve(false);
+            }
+          }, waitMs);
+        });
+
+        // First attempt allows the board to finish its boot welcome speech (~3s),
+        // then we retry once before giving up.
+        (async () => {
+          if (await tryOnce(4500)) return;
+          appendSerialLog('<< retrying !INFO?\r\n');
+          if (await tryOnce(3000)) return;
+          appendSerialLog('<< no !INFO reply (firmware too old?)\r\n');
+          applyLegacyRamFallback();
+        })();
+      }
+
+      function applyLegacyRamFallback() {
+        if (!serialWriter || boardCaps.ram > 0) return;
+        boardCaps.ram = DEFAULT_RAM_SLOTS;
+        boardCaps.fram = 0;
+        boardCaps.ramBase = DEFAULT_RAM_BASE;
+        boardCaps.framMidiBase = DEFAULT_RAM_BASE + DEFAULT_RAM_SLOTS;
+        boardCaps.framMidiSlots = 0;
+        boardCaps.max = DEFAULT_SENTENCE_MAX;
+        boardCaps.ver = 'legacy';
+        appendSerialLog('<< using default RAM layout: 20 slots, MIDI 28-47\r\n');
+        applyBoardCaps();
+        sendCommand('!DUMP R').catch(() => { });
+      }
+
+      function handleInfoReply(line) {
+        const data = {};
+        line.replace(/(\w+)=(\S+)/g, (_, k, v) => { data[k] = v; });
+        const ramSlots = parseInt(data.RAM, 10);
+        boardCaps.ram = Number.isFinite(ramSlots) && ramSlots > 0 ? ramSlots : DEFAULT_RAM_SLOTS;
+        boardCaps.fram = parseInt(data.FRAM || '0', 10) || 0;
+        boardCaps.ramBase = parseInt(data.RAMBASE || String(DEFAULT_RAM_BASE), 10) || DEFAULT_RAM_BASE;
+
+        // FRAM MIDI rows start *after* the RAM note block. Never use legacy FRAMBASE=28 (overlapped RAM).
+        const firstFramNoteNominal = boardCaps.ramBase + boardCaps.ram;
+        let midifBase = parseInt(data.MIDIFBASE, 10);
+        if (boardCaps.fram > 0) {
+          const overlapsRam = !Number.isFinite(midifBase) ||
+            midifBase < firstFramNoteNominal ||
+            midifBase > 127;
+          if (overlapsRam) {
+            midifBase = firstFramNoteNominal;
+          }
+        } else {
+          midifBase = Number.isFinite(midifBase) ? midifBase : 0;
+        }
+        boardCaps.framMidiBase = boardCaps.fram > 0 ? midifBase : 48;
+
+        let midifCnt = parseInt(data.MIDIFCNT, 10);
+        if (!Number.isFinite(midifCnt) && boardCaps.fram > 0) {
+          midifCnt = Math.min(boardCaps.fram, Math.max(0, 128 - boardCaps.framMidiBase));
+        }
+        boardCaps.framMidiSlots = Number.isFinite(midifCnt) ? midifCnt : boardCaps.fram;
+
+        boardCaps.max = parseInt(data.MAX || String(DEFAULT_SENTENCE_MAX), 10) || DEFAULT_SENTENCE_MAX;
+        boardCaps.ver = data.VER || '?';
+        boardCaps.model = /^[A-Za-z0-9_-]{1,16}$/.test(data.MODEL || '')
+          ? `Polaxis Kraftor ${data.MODEL.toUpperCase()}`
+          : 'Kraftor';
+        boardCaps.id = /^[0-9A-Fa-f]{32}$/.test(data.ID || '')
+          ? data.ID.toUpperCase()
+          : '';
+
+        applyBoardCaps();
+
+        if (boardCaps.ram > 0) {
+          sendCommand('!DUMP R', { waitDump: 'R' }).catch(() => { });
+        }
+
+        if (infoHandshakeResolve) {
+          const r = infoHandshakeResolve;
+          infoHandshakeResolve = null;
+          r(true);
+        }
+      }
+
+      function updateVersionReadout() {
+        const el = document.getElementById('versionReadout');
+        if (!el) return;
+        const firmware = boardCaps.ver ? `FW v${boardCaps.ver}` : 'FW --';
+        el.textContent = `GUI v${GUI_VERSION} | ${firmware}`;
+      }
+
+      function applyBoardCaps() {
+        const ramTabBtn = document.getElementById('tabBtnRam');
+        const framTabBtn = document.getElementById('tabBtnFram');
+        const ramInfo = document.getElementById('ramBankInfo');
+        const framInfo = document.getElementById('framBankInfo');
+
+        const ramAvailable = boardCaps.ram > 0;
+        const framAvailable = boardCaps.fram > 0;
+
+        if (ramTabBtn) {
+          ramTabBtn.disabled = !ramAvailable;
+          ramTabBtn.title = ramAvailable ? '' : 'Connect a board first';
+        }
+        if (framTabBtn) {
+          framTabBtn.disabled = !framAvailable;
+          framTabBtn.title = framAvailable ? '' : 'No FRAM detected on this board';
+        }
+
+        if (ramInfo) {
+          ramInfo.textContent = ramAvailable
+            ? `RAM — ${boardCaps.ram} slots · row #0 = MIDI ${boardCaps.ramBase} · notes ${boardCaps.ramBase}–${boardCaps.ramBase + boardCaps.ram - 1}`
+            : 'RAM bank — connect board for live layout';
+        }
+        if (framInfo) {
+          if (!framAvailable) {
+            framInfo.textContent = 'FRAM bank - none detected';
+          } else {
+            const midiLast = boardCaps.framMidiBase + boardCaps.framMidiSlots - 1;
+            let t = `FRAM — ${boardCaps.fram} storage slots`;
+            if (boardCaps.framMidiSlots > 0) {
+              t += ` · FRAM row #0 = MIDI ${boardCaps.framMidiBase} · notes ${boardCaps.framMidiBase}–${midiLast}`;
+            }
+            const extraGui = boardCaps.fram - boardCaps.framMidiSlots;
+            if (extraGui > 0) {
+              t += ` · slots ${boardCaps.framMidiSlots}–${boardCaps.fram - 1}: GUI / serial only`;
+            }
+            framInfo.textContent = t;
+          }
+        }
+
+        slotState.R = Array.from({ length: boardCaps.ram }, () => ({ savedText: '', dirty: false }));
+        slotState.F = Array.from({ length: boardCaps.fram }, () => ({ savedText: '', dirty: false }));
+        renderSlotList('R');
+        renderSlotList('F');
+        framSyncedOnce = false;
+
+        document.getElementById('ramBulkApplyBtn')?.toggleAttribute('disabled', !ramAvailable);
+        document.getElementById('framBulkApplyBtn')?.toggleAttribute('disabled', !framAvailable);
+
+        if (activeTab === 'fram' && !framAvailable) selectTab('live');
+        if (activeTab === 'ram' && !ramAvailable) selectTab('live');
+        updateVersionReadout();
+        updateSerialUi();
+      }
+
+      function resetBoardState() {
+        boardCaps.ram = 0;
+        boardCaps.fram = 0;
+        boardCaps.ver = '';
+        boardCaps.model = '';
+        boardCaps.id = '';
+        applyBoardCaps();
+        const list = document.getElementById('framSlotList');
+        if (list) list.innerHTML = '<div class="bank-empty">Connect to a board with FRAM (RC256 at 0x50) to edit sentences.</div>';
+        const ramList = document.getElementById('ramSlotList');
+        if (ramList) ramList.innerHTML = '<div class="bank-empty">Connect to a board to edit RAM sentences.</div>';
+      }
+
+      function renderSlotList(store) {
+        const listId = store === 'R' ? 'ramSlotList' : 'framSlotList';
+        const list = document.getElementById(listId);
+        if (!list) return;
+        const count = store === 'R' ? boardCaps.ram : boardCaps.fram;
+        const ramBaseNote = boardCaps.ramBase;
+        const fMidiBase = boardCaps.framMidiBase;
+        const fMidiSlots = boardCaps.framMidiSlots;
+
+        if (count <= 0) {
+          list.innerHTML = '<div class="bank-empty">No slots available.</div>';
+          return;
+        }
+
+        const frag = document.createDocumentFragment();
+        for (let i = 0; i < count; ++i) {
+          const row = document.createElement('div');
+          row.className = 'slot-row';
+          row.id = `row-${store}-${i}`;
+
+          let noteBadgeLine = '';
+          if (store === 'R') {
+            const note = ramBaseNote + i;
+            noteBadgeLine = `<span>note ${note} / ${midiNoteName(note)}</span>`;
+          } else if (store === 'F') {
+            if (i < fMidiSlots) {
+              const note = fMidiBase + i;
+              noteBadgeLine = `<span>note ${note} / ${midiNoteName(note)}</span>`;
+            } else {
+              noteBadgeLine = `<span style="opacity:0.75">no MIDI trigger</span>`;
+            }
+          }
+
+          const badge = document.createElement('div');
+          badge.className = 'slot-badge';
+          badge.innerHTML = `<span class="slot-index">#${i}</span>${noteBadgeLine}<span class="slot-status" id="status-${store}-${i}"></span>`;
+          row.appendChild(badge);
+
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.className = 'slot-input';
+          input.id = `slot-${store}-${i}`;
+          input.maxLength = boardCaps.max;
+          input.placeholder = '(empty)';
+          input.addEventListener('input', () => {
+            const cleaned = input.value.replace(/[\r\n]+/g, ' ');
+            if (cleaned !== input.value) input.value = cleaned;
+            refreshModifiedFlag(store, i);
+          });
+          input.addEventListener('keydown', event => {
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              saveSlot(store, i);
+            }
+          });
+          row.appendChild(input);
+
+          const actions = document.createElement('div');
+          actions.className = 'slot-actions';
+          const saveBtn = document.createElement('button');
+          saveBtn.type = 'button';
+          saveBtn.className = 'primary';
+          saveBtn.textContent = 'Save';
+          saveBtn.addEventListener('click', () => saveSlot(store, i));
+          const playBtn = document.createElement('button');
+          playBtn.type = 'button';
+          playBtn.textContent = 'Play';
+          playBtn.addEventListener('click', () => playSlot(store, i));
+          const eraseBtn = document.createElement('button');
+          eraseBtn.type = 'button';
+          eraseBtn.textContent = 'Erase';
+          eraseBtn.addEventListener('click', () => eraseSlot(store, i));
+          actions.appendChild(saveBtn);
+          actions.appendChild(playBtn);
+          actions.appendChild(eraseBtn);
+          row.appendChild(actions);
+
+          frag.appendChild(row);
+        }
+        list.innerHTML = '';
+        list.appendChild(frag);
+      }
+
+      function handleSentReply(line) {
+        const m = /^!SENT\s+([RF])\s+(\d+)\s?(.*)$/.exec(line);
+        if (!m) return;
+        const store = m[1];
+        const idx = parseInt(m[2], 10);
+        const text = m[3];
+        const state = slotState[store][idx];
+        if (!state) return;
+        state.savedText = text;
+        const input = document.getElementById(`slot-${store}-${idx}`);
+        if (input && !state.dirty) input.value = text;
+        refreshModifiedFlag(store, idx);
+        setSlotStatus(store, idx, '', false);
+      }
+
+      function handleEndReply(line) {
+        const trimmed = normalizeProtocolLine(line);
+        const m = /^!END\s+([RF])/.exec(trimmed);
+        if (!m) return;
+        const tag = m[1];
+        if (!pendingDumpEnds.length || pendingDumpEnds[0].store !== tag) {
+          return;
+        }
+        const w = pendingDumpEnds.shift();
+        clearTimeout(w.timer);
+        w.resolve();
+      }
+
+      function refreshModifiedFlag(store, idx) {
+        const input = document.getElementById(`slot-${store}-${idx}`);
+        const row = document.getElementById(`row-${store}-${idx}`);
+        const state = slotState[store][idx];
+        if (!input || !row || !state) return;
+        const dirty = input.value !== state.savedText;
+        state.dirty = dirty;
+        row.classList.toggle('modified', dirty);
+      }
+
+      function setSlotStatus(store, idx, text, isError) {
+        const el = document.getElementById(`status-${store}-${idx}`);
+        if (!el) return;
+        el.textContent = text;
+        el.classList.toggle('error', !!isError);
+      }
+
+      function slotCommandErrorText(action, err) {
+        const msg = err && err.message ? err.message : 'error';
+        if (msg === 'timeout') {
+          return `${action} pending: board busy, reload to verify`;
+        }
+        return `${action} failed: ${msg}`;
+      }
+
+      function isTimeoutError(err) {
+        return !!(err && err.message === 'timeout');
+      }
+
+      function escapeForCommand(text) {
+        return String(text || '').replace(/[\r\n]+/g, ' ');
+      }
+
+      function setBulkPasteHint(store, message) {
+        const el = document.getElementById(store === 'R' ? 'ramBulkHint' : 'framBulkHint');
+        if (el) el.textContent = message || '';
+      }
+
+      function applyBulkDumpToSlots(store) {
+        const arr = slotState[store];
+        const n = arr ? arr.length : 0;
+        if (n <= 0) {
+          setBulkPasteHint(store, 'No slots — connect board first.');
+          return;
+        }
+        const ta = document.getElementById(store === 'R' ? 'ramBulkDump' : 'framBulkDump');
+        if (!ta) return;
+        const raw = String(ta.value || '');
+        const maxLen =
+          Number.isFinite(boardCaps.max) && boardCaps.max > 0 ? boardCaps.max : 200;
+        const rawLines = raw.split(/\r?\n/);
+        const cleaned = rawLines.map(line => escapeForCommand(line).trim());
+        const lines = cleaned.filter(t => t.length > 0);
+        const skippedBlanks = cleaned.length - lines.length;
+        if (lines.length === 0) {
+          setBulkPasteHint(store, skippedBlanks
+            ? `${skippedBlanks} blank line(s) skipped — add text.`
+            : 'Paste at least one non-empty line.');
+          return;
+        }
+        const applyCount = Math.min(n, lines.length);
+        let truncatedLines = 0;
+        for (let i = 0; i < applyCount; i++) {
+          let t = lines[i];
+          if (t.length > maxLen) {
+            t = t.slice(0, maxLen);
+            truncatedLines++;
+          }
+          const input = document.getElementById(`slot-${store}-${i}`);
+          if (!input) continue;
+          input.value = t;
+          refreshModifiedFlag(store, i);
+          setSlotStatus(store, i, '', false);
+        }
+        const extraLines = Math.max(0, lines.length - n);
+        const tail = [];
+        tail.push(`${applyCount} line(s) → slots #0–#${applyCount > 0 ? applyCount - 1 : 0}`);
+        if (skippedBlanks) tail.push(`${skippedBlanks} blank line(s) skipped`);
+        if (extraLines) tail.push(`${extraLines} extra line(s) ignored (${n} slots)`);
+        if (truncatedLines) tail.push(`${truncatedLines} trimmed to ${maxLen} chars`);
+        if (applyCount < n) tail.push(`slots #${applyCount}–#${n - 1} unchanged`);
+        setBulkPasteHint(store, tail.join(' · '));
+      }
+
+      async function saveSlot(store, idx) {
+        const input = document.getElementById(`slot-${store}-${idx}`);
+        if (!input) return;
+        const text = escapeForCommand(input.value);
+        setSlotStatus(store, idx, 'saving...', false);
+        try {
+          await sendCommand(`!SET ${store} ${idx} ${text}`, { ack: true, timeoutMs: STORAGE_COMMAND_TIMEOUT_MS });
+          const state = slotState[store][idx];
+          if (state) {
+            state.savedText = text;
+            refreshModifiedFlag(store, idx);
+          }
+          setSlotStatus(store, idx, 'saved', false);
+        } catch (err) {
+          setSlotStatus(store, idx, slotCommandErrorText('save', err), !isTimeoutError(err));
+        }
+      }
+
+      async function playSlot(store, idx) {
+        setSlotStatus(store, idx, 'playing...', false);
+        try {
+          await sendCommand(`!PLAY ${store} ${idx}`, { ack: true, timeoutMs: 60000 });
+          setSlotStatus(store, idx, '', false);
+        } catch (err) {
+          setSlotStatus(store, idx, `play failed: ${err.message}`, true);
+        }
+      }
+
+      async function eraseSlot(store, idx) {
+        setSlotStatus(store, idx, 'erasing...', false);
+        try {
+          await sendCommand(`!ERASE ${store} ${idx}`, { ack: true, timeoutMs: STORAGE_COMMAND_TIMEOUT_MS });
+          const state = slotState[store][idx];
+          const input = document.getElementById(`slot-${store}-${idx}`);
+          if (state) state.savedText = '';
+          if (input) input.value = '';
+          refreshModifiedFlag(store, idx);
+          setSlotStatus(store, idx, 'erased', false);
+        } catch (err) {
+          setSlotStatus(store, idx, slotCommandErrorText('erase', err), !isTimeoutError(err));
+        }
+      }
+
+      async function saveAllChanged(store) {
+        const arr = slotState[store];
+        if (!arr) return;
+        for (let i = 0; i < arr.length; ++i) {
+          const input = document.getElementById(`slot-${store}-${i}`);
+          if (!input) continue;
+          if (input.value !== arr[i].savedText) {
+            await saveSlot(store, i);
+          }
+        }
+      }
+
+      function reloadBank(store) {
+        if (store === 'R') {
+          if (boardCaps.ram <= 0) return;
+          sendCommand('!DUMP R', { waitDump: 'R' }).catch(() => { });
+        } else {
+          if (boardCaps.fram <= 0) return;
+          sendCommand('!DUMP F', { waitDump: 'F' }).catch(() => { });
+        }
+      }
+
+      function selectTab(name) {
+        activeTab = name;
+        const map = {
+          live: { btn: 'tabBtnLive', panel: 'liveTab' },
+          ram: { btn: 'tabBtnRam', panel: 'ramTab' },
+          fram: { btn: 'tabBtnFram', panel: 'framTab' }
+        };
+        Object.keys(map).forEach(key => {
+          const btn = document.getElementById(map[key].btn);
+          const panel = document.getElementById(map[key].panel);
+          if (btn) btn.classList.toggle('active', key === name);
+          if (panel) panel.hidden = (key !== name);
+        });
+        if (name === 'fram' && boardCaps.fram > 0 && !framSyncedOnce) {
+          sendCommand('!DUMP F', { waitDump: 'F' })
+            .then(() => { framSyncedOnce = true; })
+            .catch(() => { });
+        }
+      }
+
+      document.getElementById('serialRefreshBtn')?.addEventListener('click', listRememberedPorts);
+
+      document.getElementById('serialConnectBtn')?.addEventListener('click', async () => {
+        if (!supportsSerial) return;
+        if (serialPort && serialPort.readable && serialPort.writable) {
+          await disconnectSerial();
+        }
+        await requestAndConnect();
+      });
+
+      document.getElementById('serialDisconnectBtn')?.addEventListener('click', async () => {
+        if (!supportsSerial) return;
+        await disconnectSerial();
+      });
+
+      document.getElementById('speakBtn')?.addEventListener('click', speakText);
+
+      document.getElementById('speakText')?.addEventListener('keydown', async event => {
+        if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
+          event.preventDefault();
+          await speakText();
+        }
+      });
+
+      document.getElementById('clearBtn')?.addEventListener('click', () => {
+        const input = document.getElementById('speakText');
+        if (input) input.value = '';
+      });
+
+      if (supportsSerial) {
+        listRememberedPorts();
+        navigator.serial.addEventListener?.('connect', listRememberedPorts);
+        navigator.serial.addEventListener?.('disconnect', listRememberedPorts);
+      } else {
+        const readout = document.getElementById('serialPortReadout');
+        if (readout) readout.textContent = 'Web Serial not supported';
+        appendSerialLog('<< Web Serial is not supported in this browser\r\n');
+      }
+
+      async function initMidiAccess() {
+        if (!supportsMidi) {
+          updateMidiUi();
+          appendSerialLog('<< Web MIDI is not supported in this browser\r\n');
+          return;
+        }
+
+        try {
+          midiAccess = await navigator.requestMIDIAccess({ sysex: false });
+          midiAccess.onstatechange = listMidiOutputs;
+          listMidiOutputs();
+        } catch {
+          appendSerialLog('<< MIDI ACCESS FAILED\r\n');
+          updateMidiUi();
+        }
+      }
+
+      function midiOutputBaseName(output) {
+        return output?.name || output?.manufacturer || output?.id || 'MIDI output';
+      }
+
+      function compactMidiOutputId(output) {
+        const id = String(output?.id || '');
+        return id.length > 8 ? id.slice(-8) : id;
+      }
+
+      function buildMidiOutputLabels(outputs) {
+        const nameCounts = new Map();
+        outputs.forEach(output => {
+          const name = midiOutputBaseName(output);
+          nameCounts.set(name, (nameCounts.get(name) || 0) + 1);
+        });
+
+        return new Map(outputs.map(output => {
+          const name = midiOutputBaseName(output);
+          const duplicate = nameCounts.get(name) > 1;
+          const suffix = compactMidiOutputId(output);
+          return [output.id, duplicate && suffix ? `${name} [${suffix}]` : name];
+        }));
+      }
+
+      function midiOutputDisplayName(output) {
+        if (!output) return 'MIDI output';
+        return midiOutputLabels.get(output.id) || midiOutputBaseName(output);
+      }
+
+      function listMidiOutputs() {
+        const select = document.getElementById('midiOutputSelect');
+        if (!select) return;
+
+        const current = select.value;
+        select.innerHTML = '<option value="">No MIDI output selected</option>';
+
+        const outputs = midiAccess ? Array.from(midiAccess.outputs.values()) : [];
+        midiOutputLabels = buildMidiOutputLabels(outputs);
+        if (midiAccess) {
+          outputs.forEach(output => {
+            const option = document.createElement('option');
+            option.value = output.id;
+            option.textContent = midiOutputDisplayName(output);
+            option.title = output.id === option.textContent
+              ? option.textContent
+              : `${option.textContent} - Web MIDI ID: ${output.id}`;
+            select.appendChild(option);
+          });
+        }
+
+        if (current && outputs.some(output => output.id === current)) {
+          select.value = current;
+        } else if (!midiOutput && outputs.length === 1) {
+          select.value = outputs[0].id;
+        }
+        if (midiOutput && select.value !== midiOutput.id) {
+          midiOutput = null;
+        }
+        updateMidiUi();
+      }
+
+      function connectSelectedMidiOutput() {
+        const select = document.getElementById('midiOutputSelect');
+        if (!midiAccess || !select || !select.value) return;
+        midiOutput = midiAccess.outputs.get(select.value) || null;
+        updateMidiUi();
+        if (midiOutput) {
+          appendSerialLog(`<< MIDI CONNECTED ${midiOutputDisplayName(midiOutput)}\r\n`);
+          sendCurrentVoiceSettings();
+        }
+      }
+
+      function disconnectMidiOutput() {
+        if (midiOutput) appendSerialLog('<< MIDI DISCONNECTED\r\n');
+        midiOutput = null;
+        updateMidiUi();
+      }
+
+      function updateMidiUi() {
+        const pickWrap = document.getElementById('midiOutputPickWrap');
+        const readout = document.getElementById('midiOutputReadout');
+        const hint = document.getElementById('midiOutputHint');
+        const dot = document.getElementById('midiStatusDot');
+        const button = document.getElementById('midiConnectBtn');
+        const identifyButton = document.getElementById('midiIdentifyBtn');
+        const select = document.getElementById('midiOutputSelect');
+
+        if (!supportsMidi) {
+          if (pickWrap) pickWrap.hidden = true;
+          if (select) select.disabled = true;
+          if (hint) {
+            hint.textContent = '';
+            hint.classList.remove('ready');
+          }
+          if (readout) {
+            readout.hidden = false;
+            readout.textContent = 'Web MIDI not supported';
+          }
+          if (dot) dot.classList.remove('connected');
+          if (button) button.disabled = true;
+          if (identifyButton) identifyButton.disabled = true;
+          return;
+        }
+
+        const connected = Boolean(midiOutput);
+        const outputCount = midiAccess ? midiAccess.outputs.size : 0;
+        const selectedName = select && select.value && midiAccess
+          ? midiOutputDisplayName(midiAccess.outputs.get(select.value))
+          : '';
+        if (button) button.disabled = false;
+        if (button) button.textContent = connected ? 'Disconnect MIDI' : 'Connect MIDI';
+        const serialConnected = Boolean(serialPort && serialPort.readable && serialPort.writable);
+        if (identifyButton) identifyButton.disabled = !(connected && serialConnected);
+        if (dot) dot.classList.toggle('connected', connected);
+
+        if (pickWrap && readout) {
+          if (connected) {
+            pickWrap.classList.remove('midi-ready');
+            pickWrap.hidden = true;
+            readout.hidden = false;
+            readout.textContent = `Connected: ${midiOutputDisplayName(midiOutput)}`;
+          } else {
+            pickWrap.classList.toggle('midi-ready', outputCount > 0);
+            pickWrap.hidden = false;
+            readout.hidden = true;
+            readout.textContent = '';
+          }
+        }
+        if (hint) {
+          hint.classList.toggle('ready', !connected && outputCount > 0);
+          if (connected) {
+            hint.textContent = '';
+          } else if (!midiAccess) {
+            hint.textContent = 'Click Connect MIDI to show available outputs.';
+          } else if (outputCount === 0) {
+            hint.textContent = 'No MIDI outputs found.';
+          } else if (selectedName) {
+            hint.textContent = `Ready: ${selectedName}`;
+          } else {
+            hint.textContent = `${outputCount} MIDI output(s) available. Choose one.`;
+          }
+        }
+        if (select) select.disabled = connected;
+      }
+
+      function sendMidiControl(config, value) {
+        if (!midiOutput) return;
+        const channel = selectedMidiChannelIndex();
+        const channelNumber = channel + 1;
+        const chipValue = clampVoiceValue(value, config.key, VOICE_RANGES[config.key]?.min ?? 0);
+
+        if (config.kind === 'cc') {
+          const ccValue = chipValueToMidiCc(config.key, chipValue);
+          midiOutput.send([0xB0 | channel, config.cc, ccValue]);
+          appendSerialLog(`>> MIDI CH${channelNumber} ${config.label} CC${config.cc} ${ccValue} (chip ${chipValue})\r\n`);
+          return;
+        }
+
+        if (config.kind === 'bend') {
+          const bendValue = pitchToBendValue(chipValue);
+          const lsb = bendValue & 0x7F;
+          const msb = (bendValue >> 7) & 0x7F;
+          midiOutput.send([0xE0 | channel, lsb, msb]);
+          appendSerialLog(`>> MIDI CH${channelNumber} ${config.label} bend ${bendValue} (chip ${chipValue})\r\n`);
+        }
+      }
+
+      function sendCurrentVoiceSettings() {
+        ['speed', 'pitch', 'accent', 'vowels'].forEach(key => {
+          const entry = voiceDials[key];
+          if (!entry) return;
+          const value = clampVoiceValue(
+            document.getElementById(`${key}Value`)?.textContent,
+            key,
+            voicePresets.default[key]
+          );
+          sendMidiControl(entry.config, value);
+        });
+        scheduleVoiceSerialSync();
+      }
+
+      function selectedMidiChannelIndex() {
+        const value = Number(document.getElementById('midiChannelSelect')?.value || 1);
+        return Math.max(0, Math.min(14, value - 1));
+      }
+
+      async function identifyMidiBoard() {
+        if (!midiOutput || !serialWriter || boardCaps.ram <= 0) return;
+        const channel = selectedMidiChannelIndex();
+        const channelNumber = channel + 1;
+        const note = 28;
+        const velocity = 100;
+        const button = document.getElementById('midiIdentifyBtn');
+        if (button) button.disabled = true;
+
+        try {
+          await sendCommand('!SET R 0 mi-di.', {
+            ack: true,
+            timeoutMs: STORAGE_COMMAND_TIMEOUT_MS
+          });
+          midiOutput.send([0x90 | channel, note, velocity]);
+          midiOutput.send([0x80 | channel, note, 0], window.performance.now() + 300);
+          appendSerialLog(`>> MIDI CH${channelNumber} IDENTIFY note ${note} / ${midiNoteName(note)}\r\n`);
+        } catch (err) {
+          appendSerialLog(`<< MIDI IDENTIFY FAILED ${err.message || 'error'}\r\n`);
+        } finally {
+          updateMidiUi();
+        }
+      }
+
+      document.getElementById('midiRefreshBtn')?.addEventListener('click', () => {
+        if (!midiAccess) {
+          initMidiAccess();
+        } else {
+          listMidiOutputs();
+        }
+      });
+
+      document.getElementById('serialIdentifyBtn')?.addEventListener('click', identifySerialBoard);
+      document.getElementById('midiIdentifyBtn')?.addEventListener('click', identifyMidiBoard);
+
+      document.getElementById('midiConnectBtn')?.addEventListener('click', async () => {
+        if (!supportsMidi) return;
+        if (!midiAccess) await initMidiAccess();
+        if (midiOutput) {
+          disconnectMidiOutput();
+        } else {
+          connectSelectedMidiOutput();
+        }
+      });
+
+      document.getElementById('midiOutputSelect')?.addEventListener('change', () => {
+        if (!midiOutput) connectSelectedMidiOutput();
+      });
+      const midiChannelSelect = document.getElementById('midiChannelSelect');
+      if (midiChannelSelect) {
+        const savedChannel = Number(localStorage.getItem('samMidiChannel'));
+        if (savedChannel >= 1 && savedChannel <= 15) midiChannelSelect.value = String(savedChannel);
+        midiChannelSelect.addEventListener('change', event => {
+          localStorage.setItem('samMidiChannel', event.target.value);
+          appendSerialLog(`<< MIDI channel ${event.target.value} selected; match firmware DIP switches\r\n`);
+        });
+      }
+      updateMidiUi();
+
+      document.getElementById('voicePresetSelect')?.addEventListener('change', event => {
+        applyVoicePreset(event.target.value, true);
+      });
+
+      document.getElementById('resetVoiceBtn')?.addEventListener('click', () => {
+        const select = document.getElementById('voicePresetSelect');
+        if (select) select.value = 'default';
+        applyVoicePreset('default', true);
+      });
+
+      document.getElementById('randomVoiceBtn')?.addEventListener('click', () => {
+        const select = document.getElementById('voicePresetSelect');
+        if (select) select.value = '';
+        randomizeVoice(true);
+      });
+
+      document.getElementById('skinSelect')?.addEventListener('change', event => {
+        applySkin(event.target.value);
+      });
+
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (btn.disabled) return;
+          selectTab(btn.dataset.tab);
+        });
+      });
+
+      document.getElementById('ramReloadBtn')?.addEventListener('click', () => reloadBank('R'));
+      document.getElementById('framReloadBtn')?.addEventListener('click', () => reloadBank('F'));
+      document.getElementById('ramSaveAllBtn')?.addEventListener('click', () => saveAllChanged('R'));
+      document.getElementById('framSaveAllBtn')?.addEventListener('click', () => saveAllChanged('F'));
+      document.getElementById('ramBulkApplyBtn')?.addEventListener('click', () => applyBulkDumpToSlots('R'));
+      document.getElementById('framBulkApplyBtn')?.addEventListener('click', () => applyBulkDumpToSlots('F'));
+
+      document.getElementById('ramRefSheetBtn')?.addEventListener('click', () => openMidiRef('R'));
+      document.getElementById('framRefSheetBtn')?.addEventListener('click', () => openMidiRef('F'));
+      document.getElementById('midiRefRefreshBtn')?.addEventListener('click', () => renderMidiReferenceSheet());
+      document.getElementById('midiRefCloseBtn')?.addEventListener('click', () => {
+        const p = document.getElementById('midiRefPanel');
+        if (p) p.hidden = true;
+      });
+      document.getElementById('midiRefPrintBtn')?.addEventListener('click', printMidiReferenceSheet);
+
+      initVoicePots();
+      applySkin(localStorage.getItem('samSpeakerSkin') || 'amiga');
+      updateMidiUi();
+      updateSerialUi();
+      resetBoardState();
+    })();
+  </script>
+</body>
+
+</html>

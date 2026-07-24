@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kaiwa Vox · Manual</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #d9e0eb;
+      --bg-deep: #b8c4d8;
+      --panel: rgba(250, 247, 240, 0.9);
+      --panel-soft: #f3efe6;
+      --ink: #1c1917;
+      --muted: #5c564c;
+      --line: rgba(44, 63, 107, 0.18);
+      --line-strong: rgba(28, 25, 23, 0.28);
+      --indigo: #2c3f6b;
+      --vermillion: #c23b22;
+      --vermillion-deep: #8f2414;
+      --terminal: #1f6b58;
+      --terminal-bg: #141814;
+      --shadow: 0 18px 40px rgba(28, 39, 68, 0.12);
+      --radius: 2px;
+      --font-ui: "Zen Kaku Gothic New", "Hiragino Sans", "Noto Sans JP", sans-serif;
+      --font-display: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: var(--font-ui);
+      line-height: 1.6;
+      letter-spacing: 0.01em;
+      background:
+        radial-gradient(ellipse 90% 55% at 12% -10%, rgba(194, 59, 34, 0.10), transparent 55%),
+        radial-gradient(ellipse 70% 50% at 88% 8%, rgba(44, 63, 107, 0.18), transparent 50%),
+        linear-gradient(165deg, #e8edf5 0%, var(--bg) 42%, var(--bg-deep) 100%);
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.4;
+      background-image:
+        radial-gradient(circle at 20% 30%, rgba(28, 25, 23, 0.035) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 70% 60%, rgba(44, 63, 107, 0.04) 0 1px, transparent 1.5px);
+      background-size: 7px 7px, 11px 11px;
+    }
+
+    main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 36px 0 64px;
+      position: relative;
+      z-index: 1;
+    }
+
+    header,
+    section {
+      background: var(--panel);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--vermillion);
+      box-shadow: var(--shadow);
+      padding: 22px 24px;
+      margin-bottom: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .brand-seal {
+      width: 56px;
+      height: 56px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border: 2px solid var(--vermillion);
+      color: var(--vermillion);
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      transform: rotate(-4deg);
+      background: color-mix(in srgb, var(--vermillion) 8%, transparent);
+    }
+
+    h1 {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: clamp(28px, 4vw, 38px);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      line-height: 1.1;
+    }
+
+    .brand-vox {
+      font-size: 0.42em;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      color: var(--vermillion);
+      text-transform: uppercase;
+      vertical-align: middle;
+      margin-left: 0.3em;
+    }
+
+    .lede {
+      margin: 0 0 8px;
+      color: var(--indigo);
+      font-family: var(--font-display);
+      letter-spacing: 0.12em;
+      font-size: 14px;
+    }
+
+    .meta {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--ink);
+    }
+
+    h3 {
+      margin: 22px 0 10px;
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--indigo);
+    }
+
+    p { margin: 0 0 12px; }
+
+    a {
+      color: var(--vermillion-deep);
+      font-weight: 700;
+      text-decoration: none;
+      border-bottom: 1px solid color-mix(in srgb, var(--vermillion) 45%, transparent);
+    }
+
+    a:hover {
+      color: var(--vermillion);
+      border-bottom-color: var(--vermillion);
+    }
+
+    .gui-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 4px 14px;
+      border: 1px solid var(--vermillion);
+      background: var(--vermillion);
+      color: #fffaf7;
+      border-bottom: none;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .gui-link:hover {
+      background: var(--vermillion-deep);
+      color: #fffaf7;
+      border-color: var(--vermillion-deep);
+    }
+
+    code,
+    pre {
+      font-family: "IBM Plex Mono", "SF Mono", "Menlo", monospace;
+      font-size: 0.92em;
+    }
+
+    code {
+      padding: 1px 6px;
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      color: var(--indigo);
+    }
+
+    pre {
+      margin: 0 0 14px;
+      padding: 14px;
+      overflow: auto;
+      background: var(--terminal-bg);
+      color: var(--terminal);
+      border: 1px solid var(--line-strong);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--panel-soft);
+      margin: 0 0 14px;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line-strong);
+      padding: 9px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: color-mix(in srgb, var(--indigo) 12%, var(--panel-soft));
+      color: var(--indigo);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    ul,
+    ol {
+      margin: 0 0 12px;
+      padding-left: 22px;
+    }
+
+    li { margin-bottom: 6px; }
+
+    .toc {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      margin: 16px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .toc a {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--muted);
+      border-bottom-color: transparent;
+    }
+
+    .toc a:hover { color: var(--vermillion); }
+
+    @media (max-width: 640px) {
+      header, section { padding: 18px; }
+      .brand { align-items: flex-start; }
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <header>
+      <div class="brand">
+        <div class="brand-seal" aria-hidden="true">会話</div>
+        <div>
+          <h1>Kaiwa <span class="brand-vox">Vox</span></h1>
+          <p class="lede">かいわ · Japanese speech chip</p>
+        </div>
+      </div>
+      <p class="meta">Browser control surface for Kraftor Kaiwa firmware and the AquesTalk Pico module. GUI v1.0 — firmware version is read from the board.</p>
+      <p><a class="gui-link" href="index.html">Open the GUI</a></p>
+      <ul class="toc">
+        <li><a href="#requirements">Requirements</a></li>
+        <li><a href="#text-format">Text format</a></li>
+        <li><a href="#serial">Serial</a></li>
+        <li><a href="#midi">MIDI</a></li>
+        <li><a href="#identify">Identify</a></li>
+        <li><a href="#voice">Voice</a></li>
+        <li><a href="#midi-dip-switches">DIP switches</a></li>
+        <li><a href="#banks">RAM / FRAM</a></li>
+        <li><a href="#commands">Commands</a></li>
+        <li><a href="#skins">Skins</a></li>
+      </ul>
+    </header>
+
+    <section id="requirements">
+      <h2>Requirements</h2>
+      <ul>
+        <li>A browser with Web Serial and Web MIDI support (Chrome or Edge).</li>
+        <li>Kraftor board running Kaiwa firmware with an <strong>ATP3011R4-PU</strong> AquesTalk pico LSI.</li>
+        <li>USB connection to the computer.</li>
+      </ul>
+      <p>After serial connect, the GUI requests <code>!INFO?</code>. The board replies with model, chip ID, RAM/FRAM layout, and firmware version — shown as <code>FW v…</code> in the header.</p>
+    </section>
+
+    <section id="text-format">
+      <h2>Text format</h2>
+      <p>The AquesTalk Pico speaks Japanese, but its input is <strong>AquesTalk ASCII phonetic notation</strong> — the same romanization used by earlier Kaiwa firmware. It does <strong>not</strong> accept UTF-8 kanji, hiragana, or katakana; only half-width ASCII romaji and the symbols below.</p>
+      <p>A phrase may contain at most <strong>127 ASCII bytes</strong>. The final carriage-return byte sent to the chip occupies the 128th byte allowed by its protocol. Every utterance must end with a sentence delimiter (usually <code>.</code>).</p>
+
+      <h3>Building a sentence</h3>
+      <p>Write Japanese <strong>readings in romaji</strong>, then add prosody marks. One accent phrase may contain <strong>at most one</strong> <code>'</code> (or none). Put <code>'</code> immediately after the mora where the pitch falls (high → low).</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>reading letters</td><td>Romaji syllables (<code>ka</code>, <code>shi</code>, <code>kyo</code>, <code>n</code>, …)</td></tr>
+          <tr><td><code>'</code></td><td>Accent nucleus — pitch drop after that mora</td></tr>
+          <tr><td><code>-</code></td><td>Long vowel (hold the previous vowel)</td></tr>
+          <tr><td><code>/</code></td><td>Accent-phrase break, no pause</td></tr>
+          <tr><td><code>+</code></td><td>Softer phrase join (secondary accent), no pause</td></tr>
+          <tr><td><code>;</code></td><td>Phrase break with a slight lift into the next phrase, no pause</td></tr>
+          <tr><td>space</td><td>Breath / phrase boundary <strong>with</strong> pause</td></tr>
+          <tr><td><code>,</code></td><td>Shorter pause than a space</td></tr>
+          <tr><td><code>.</code></td><td>End of sentence (with pause)</td></tr>
+          <tr><td><code>?</code></td><td>End of sentence, question intonation</td></tr>
+        </tbody>
+      </table>
+
+      <p>Examples:</p>
+      <pre>konichiwa.
+oha'yo-.
+ha'shi.
+yorosi'idesuka?</pre>
+
+      <p>Longer example using <code>-</code>, <code>/</code>, and <code>'</code> — the Heart Sutra title (<em>Maka Hannya Haramita Shingyo</em>):</p>
+      <pre>maka-/hannya-haramita-/si'n-gyo-.</pre>
+      <p>Here <code>-</code> lengthens vowels, <code>/</code> splits accent phrases, <code>'</code> marks the pitch drop in <code>si'n</code>, and <code>.</code> ends the sentence.</p>
+
+      <p>Full Heart Sutra as twelve speakable phrases (each under 127 bytes). Paste into a RAM/FRAM bulk-fill box, one line per slot:</p>
+      <pre>maka-/hannya-haramita-/si'n-gyo-.
+kanji-zaibo-sa-gyo-jin/hannya-ha-ra-mi-ta-ji-/sho-kengo-onkaiku-do-/issaiku-yaku.
+sha-ri-si-/sikifu-i-ku-/ku-fu-i-siki/sikisokuze-ku-/ku-sokuze-siki/jyu-so-gyo-shikiyaku/bu-nyo-ze-.
+sha-ri-si-ze-/sho-ho-ku-so-/fu-sho-fu-metu/fu-ku-fu-jyo-/fu-zo-fu-gen.
+ze-ko-ku-chu-/mu-siki/mu-jyu-so-gyo-shiki/mu-genni-bi-zessinni-/mu-sikisho-ko-mi-sokuho-/mu-genkainaisi-/mu-i-sikikai.
+mu-mu-myo-yaku/mu-mu-myo-jinnaisi-/mu-ro-si-yaku/mu-ro-si-jin/mu-ku-shu-metudo-/mu-ti-yaku/mu-toku.
+i-mu-sho-tokuko-/bo-daisatta-e-/hannya-ha-ra-mi-ta-ko-.
+sinmu-ke-ge-/mu-ke-ge-ko-/mu-u-ku-fu-/onri-issai/tendo-mu-so-/ku-gyo-ne-han/sanze-sho-butue-/hannya-ha-ra-mi-ta-ko-.
+tokua-nokuta-ra-/sanmyakusanbo-daiko-ti-/hannya-ha-ra-mi-ta-.
+ze-daijinshu-/ze-daimyo-shu-/ze-mu-jyo-shu-/ze-mu-to-do-shu-/no-jo-issaiku-/sinjitufu-ko-.
+ko-setuhannya-ha-ra-mi-ta-shu-/sokusesshu-wa'tu.
+gya-te-/gya-te-/ha-ra-gya-te-/haraso-gya-te-/bo-ji-sowaka-/hannya-sin-gyo-.</pre>
+
+      <p>Tips:</p>
+      <ul>
+        <li>Prefer lowercase. Firmware vowel elongation (CC 3 / <code>!VOICE</code> 4th arg) only inserts extra <code>-</code> after lowercase <code>a e i o u</code>.</li>
+        <li>Without <code>'</code>, the accent control has little to work on; use a marked phrase such as <code>oha'yo-.</code> when testing accent strength.</li>
+        <li>Do not start an accent phrase with <code>-</code>.</li>
+        <li>For the full reading-symbol table and tags (numbers, counters), see the ATP3011R4-PU AquesTalk pico LSI datasheet “音声記号列” section: <a href="https://www.a-quest.com/archive/manual/atp3011_datasheet.pdf">atp3011_datasheet.pdf</a>.</li>
+      </ul>
+    </section>
+
+    <section id="serial">
+      <h2>Serial speech — the “what”</h2>
+      <ol>
+        <li>Open <code>index.html</code>.</li>
+        <li>Click <code>Select port</code> and choose the Kraftor USB serial device.</li>
+        <li>Confirm the readout shows the Kaiwa model and chip ID when reported.</li>
+        <li>Type phonetic text and click <code>Speak</code> (or press Enter).</li>
+      </ol>
+      <p>Plain serial lines are spoken immediately at <code>115200</code> baud. Before Speak, the GUI also sends <code>!VOICE</code> so speed, pitch, accent, and vowel elongation match the dials.</p>
+      <p><strong>Workflow:</strong> serial carries the phrase content; MIDI shapes the voice and triggers stored slots.</p>
+    </section>
+
+    <section id="midi">
+      <h2>MIDI — the “how” and “when”</h2>
+      <ol>
+        <li>Click <code>Connect MIDI</code> and allow access if prompted.</li>
+        <li>Select the MIDI output and channel that match the board DIP switches.</li>
+        <li>Move the voice dials, or play notes to trigger stored RAM/FRAM slots.</li>
+      </ol>
+      <table>
+        <thead>
+          <tr>
+            <th>MIDI input</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Notes 28–47</td>
+            <td>Play RAM slots 0–19</td>
+          </tr>
+          <tr>
+            <td>Notes 48–127</td>
+            <td>Play FRAM slots 0–79</td>
+          </tr>
+          <tr>
+            <td>CC 1</td>
+            <td>Speed (maps to 50–300)</td>
+          </tr>
+          <tr>
+            <td>Pitch bend</td>
+            <td>Pitch register (bend up = higher voice)</td>
+          </tr>
+          <tr>
+            <td>CC 2</td>
+            <td>Accent (0–255)</td>
+          </tr>
+          <tr>
+            <td>CC 3</td>
+            <td>Vowel elongation (0–6 <code>-</code> after each <code>aeiou</code>)</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>FRAM slots 80–99 stay editable over serial but have no MIDI note. If the chip is busy, the firmware replies <code>!ERR busy</code>; use <code>!STOP</code> to interrupt.</p>
+    </section>
+
+    <section id="identify">
+      <h2>Identify Serial &amp; Identify MIDI</h2>
+      <p>When several Kraftor boards are connected, Chrome does not reliably pair a Web Serial port with a Web MIDI output. Use the identify buttons to hear which physical board each connection reaches.</p>
+      <ul>
+        <li><strong>Identify Serial</strong> — speaks <code>si-riaru.</code> over the open serial port.</li>
+        <li><strong>Identify MIDI</strong> — needs serial and MIDI. Writes <code>mi-di.</code> into temporary RAM slot 0 over serial, then sends MIDI note 28 on the selected channel so that slot plays.</li>
+      </ul>
+      <p>RAM clears at boot, so the MIDI identify phrase lasts only for the current session.</p>
+    </section>
+
+    <section id="voice">
+      <h2>Voice controls</h2>
+      <p>Dials show AquesTalk parameters. Turning Pitch <strong>up</strong> raises the voice; the numeric readout still shows the chip register (lower register = higher voice). Pure MIDI pitch-bend already follows musical direction.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>GUI control</th>
+            <th>Range</th>
+            <th>MIDI</th>
+            <th>Serial</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Speed</td>
+            <td>50–300</td>
+            <td>CC 1</td>
+            <td rowspan="4"><code>!VOICE speed pitch accent vowels</code></td>
+          </tr>
+          <tr>
+            <td>Pitch</td>
+            <td>0–254</td>
+            <td>Pitch bend</td>
+          </tr>
+          <tr>
+            <td>Accent</td>
+            <td>0–255</td>
+            <td>CC 2</td>
+          </tr>
+          <tr>
+            <td>Vowels</td>
+            <td>0–6</td>
+            <td>CC 3</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>Defaults match firmware: speed <code>80</code>, pitch <code>64</code>, accent <code>100</code>, vowels <code>0</code>.</p>
+      <p>Presets: Default, Fast, Slow, High, Low, Drawl. <code>Random</code> invents a new voice; <code>Reset to default</code> restores the firmware defaults.</p>
+    </section>
+
+    <section id="midi-dip-switches">
+      <h2>MIDI channel DIP switches</h2>
+      <p>Switches are read at startup. Move a switch toward its <strong>ON</strong> marking to enable it. DIP1 = 8, DIP2 = 4, DIP3 = 2, DIP4 = 1. Set the channel to match the GUI, then reset or power-cycle the board. All OFF selects Omni (every channel).</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Mode</th>
+            <th>DIP1 (8)</th>
+            <th>DIP2 (4)</th>
+            <th>DIP3 (2)</th>
+            <th>DIP4 (1)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Omni</td><td>OFF</td><td>OFF</td><td>OFF</td><td>OFF</td></tr>
+          <tr><td>Channel 1</td><td>OFF</td><td>OFF</td><td>OFF</td><td>ON</td></tr>
+          <tr><td>Channel 2</td><td>OFF</td><td>OFF</td><td>ON</td><td>OFF</td></tr>
+          <tr><td>Channel 3</td><td>OFF</td><td>OFF</td><td>ON</td><td>ON</td></tr>
+          <tr><td>Channel 4</td><td>OFF</td><td>ON</td><td>OFF</td><td>OFF</td></tr>
+          <tr><td>Channel 5</td><td>OFF</td><td>ON</td><td>OFF</td><td>ON</td></tr>
+          <tr><td>Channel 6</td><td>OFF</td><td>ON</td><td>ON</td><td>OFF</td></tr>
+          <tr><td>Channel 7</td><td>OFF</td><td>ON</td><td>ON</td><td>ON</td></tr>
+          <tr><td>Channel 8</td><td>ON</td><td>OFF</td><td>OFF</td><td>OFF</td></tr>
+          <tr><td>Channel 9</td><td>ON</td><td>OFF</td><td>OFF</td><td>ON</td></tr>
+          <tr><td>Channel 10</td><td>ON</td><td>OFF</td><td>ON</td><td>OFF</td></tr>
+          <tr><td>Channel 11</td><td>ON</td><td>OFF</td><td>ON</td><td>ON</td></tr>
+          <tr><td>Channel 12</td><td>ON</td><td>ON</td><td>OFF</td><td>OFF</td></tr>
+          <tr><td>Channel 13</td><td>ON</td><td>ON</td><td>OFF</td><td>ON</td></tr>
+          <tr><td>Channel 14</td><td>ON</td><td>ON</td><td>ON</td><td>OFF</td></tr>
+          <tr><td>Channel 15</td><td>ON</td><td>ON</td><td>ON</td><td>ON</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="banks">
+      <h2>RAM and FRAM sentences</h2>
+      <p>On connect, the GUI learns the bank layout from <code>!INFO?</code>.</p>
+      <ul>
+        <li><strong>RAM</strong> — 20 volatile slots. Cleared on reset / power-off. MIDI notes 28–47.</li>
+        <li><strong>FRAM</strong> — up to 100 persistent slots when the RC256 is present. MIDI notes 48–127 cover slots 0–79; slots 80–99 are serial/GUI only.</li>
+      </ul>
+      <p>Use <code>Reload from board</code>, <code>Save all changed</code>, per-slot <code>Play</code>, and bulk paste fill. Phrase length is capped at 127 bytes for AquesTalk even if an older SAM bank used longer text.</p>
+    </section>
+
+    <section id="commands">
+      <h2>Useful serial commands</h2>
+      <pre>!INFO?
+!VOICE?
+!VOICE 80 64 100
+!VOICE 80 64 100 2
+!STOP
+!SET R 0 konichiwa.
+!PLAY R 0
+!DUMP R
+!SET F 0 ohayo-.
+!PLAY F 0
+!DUMP F</pre>
+      <p><code>!VOICE</code> arguments: speed (50–300), pitch (0–254), accent (0–255), optional vowel elongation (0–6). Omit the fourth value to leave elongation unchanged.</p>
+    </section>
+
+    <section id="skins">
+      <h2>Skins</h2>
+      <p>The skin menu only changes the look. The choice is remembered in the browser.</p>
+      <ul>
+        <li>Washi</li>
+        <li>Sumi</li>
+        <li>Matcha</li>
+        <li>Sakura</li>
+        <li>Torii</li>
+      </ul>
+    </section>
+  </main>
+</body>
+
+</html>
