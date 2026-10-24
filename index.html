@@ -850,12 +850,24 @@
     }
 
     .slot-status {
-      font-size: 10px;
+      grid-column: 1 / -1;
+      font-size: 12px;
       color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      min-height: 12px;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
     }
+
+    .slot-status:empty, .phrase-budget:empty { display: none; }
+
+    .slot-text { min-width: 0; }
+    .phrase-budget {
+      margin: 6px 0 0;
+      font-size: 12px;
+      line-height: 1.4;
+      color: var(--muted);
+      overflow-wrap: anywhere;
+    }
+    .phrase-budget.error { color: var(--danger); }
 
     .slot-status.error { color: var(--danger); }
 
@@ -1122,7 +1134,7 @@
         </div>
       </div>
       <div class="status-row">
-        <div id="versionReadout" class="version-readout">GUI v1.0 | FW --</div>
+        <div id="versionReadout" class="version-readout">GUI v1.2 | FW --</div>
         <a class="manual-link" href="user_manual.html" target="_blank" rel="noopener noreferrer">Manual</a>
         <a class="source-link" href="https://github.com/deladriere/Kaiwa_Designer" target="_blank"
           rel="noopener">Source</a>
@@ -1224,7 +1236,8 @@
       <section class="panel">
         <div class="field">
           <label for="speakText">Text to speak</label>
-          <textarea id="speakText" placeholder="maka-/hannya-haramita-/si'n-gyo-."></textarea>
+          <textarea id="speakText" aria-describedby="speakLengthHint" placeholder="maka-/hannya-haramita-/si'n-gyo-."></textarea>
+          <p id="speakLengthHint" class="phrase-budget" role="status"></p>
         </div>
         <div class="row">
           <button id="speakBtn" class="primary" type="button">Speak</button>
@@ -1236,8 +1249,6 @@
         <div class="field">
           <div class="voice-controls-heading">
             <label>Voice controls</label>
-            <span class="requires-midi-hint"
-              title="MIDI: CC1 speed, pitch bend, CC2 accent, CC3 vowels. Serial: !VOICE.">AquesTalk</span>
           </div>
           <div class="preset-row">
             <div class="field" style="margin-bottom: 0;">
@@ -1281,6 +1292,7 @@
               <div id="vowelsValue" class="pot-value">0</div>
             </div>
           </div>
+          <p class="phrase-budget">The 127-byte speech limit includes added vowel dashes. Each phrase shows its maximum Vowels setting. Split long phrases to use more elongation.</p>
         </div>
       </section>
     </div>
@@ -1321,22 +1333,26 @@
               <button id="framReloadBtn" type="button">Reload from board</button>
               <button id="framSaveAllBtn" type="button">Save all changed</button>
             </div>
+            <button id="framFormatBtn" type="button" disabled>Format FRAM…</button>
             <button id="framRefSheetBtn" type="button" title="Printable FRAM map (row # · MIDI note · text)">Reference
               sheet…</button>
           </div>
         </div>
-        <div class="field bulk-dump-panel">
-          <label for="framBulkDump">Bulk paste · one non-empty line per slot (blank lines ignored)</label>
-          <textarea id="framBulkDump" spellcheck="false"
-            placeholder="Sentence for slot #0&#10;Sentence for slot #1&#10;…"></textarea>
-          <div class="row" style="align-items: center; flex-wrap: wrap; gap: 10px;">
-            <button id="framBulkApplyBtn" type="button">Fill FRAM slots</button>
-            <span id="framBulkHint" class="bulk-dump-hint"></span>
+        <p id="framFormatStatus" role="status" aria-live="polite"></p>
+        <fieldset id="framEditor" style="border:0;padding:0;margin:0;min-width:0" disabled>
+          <div class="field bulk-dump-panel">
+            <label for="framBulkDump">Bulk paste · one non-empty line per slot (blank lines ignored)</label>
+            <textarea id="framBulkDump" spellcheck="false"
+              placeholder="Sentence for slot #0&#10;Sentence for slot #1&#10;…"></textarea>
+            <div class="row" style="align-items: center; flex-wrap: wrap; gap: 10px;">
+              <button id="framBulkApplyBtn" type="button">Fill FRAM slots</button>
+              <span id="framBulkHint" class="bulk-dump-hint"></span>
+            </div>
           </div>
-        </div>
-        <div id="framSlotList" class="slot-list">
-          <div class="bank-empty">Connect to a board with FRAM (RC256 at 0x50) to edit sentences.</div>
-        </div>
+          <div id="framSlotList" class="slot-list">
+            <div class="bank-empty">Connect to a board with FRAM (RC256 at 0x50) to edit sentences.</div>
+          </div>
+        </fieldset>
       </section>
     </div>
 
@@ -1363,13 +1379,15 @@
       let voicePotsReady = false;
       const voiceDials = {};
 
-      const GUI_VERSION = '1.0';
+      const GUI_VERSION = '1.2';
       const DEFAULT_RAM_SLOTS = 20;
       const DEFAULT_RAM_BASE = 28;
-      const DEFAULT_SENTENCE_MAX = 200;
+      const DEFAULT_SENTENCE_MAX = 127;
       const boardCaps = {
         ram: 0,
         fram: 0,
+        framReady: false,
+        framFormat: false,
         ramBase: DEFAULT_RAM_BASE,
         framMidiBase: 48,
         framMidiSlots: 80,
@@ -1386,6 +1404,7 @@
       let commandChain = Promise.resolve();
       let activeTab = 'live';
       let framSyncedOnce = false;
+      let framFormatting = false;
       let infoHandshakeResolve = null;
       let midiRefScope = 'R';
 
@@ -1418,6 +1437,7 @@
         vowels: { min: 0, max: 6 }
       };
       let voiceSerialTimer = null;
+      let lastVoiceSerialSent = null;
 
       function clampVoiceValue(value, keyOrFallback, maybeFallback) {
         const hasKey = typeof keyOrFallback === 'string' && VOICE_RANGES[keyOrFallback];
@@ -1465,6 +1485,7 @@
           localStorage.setItem(VOICE_SETTINGS_STORAGE_KEY, JSON.stringify(readVoiceSettings()));
         } catch {
         }
+        updatePlaybackBudgets();
       }
       const skinNexusColors = {
         amiga: { accent: '#c23b22', fill: '#f3efe6', dark: '#1c1917', light: '#faf7f0', medium: '#8a8170' },
@@ -1629,10 +1650,13 @@
         }, 120);
       }
 
-      async function sendVoiceSerial() {
+      async function sendVoiceSerial(force = false) {
         if (!serialWriter) return;
         const v = readVoiceSettings();
-        await sendSerialLine(`!VOICE ${v.speed} ${v.pitch} ${v.accent} ${v.vowels}`);
+        const key = `${v.speed} ${v.pitch} ${v.accent} ${v.vowels}`;
+        if (!force && lastVoiceSerialSent === key) return;
+        await sendCommand(`!VOICE ${key}`, { ack: true });
+        lastVoiceSerialSent = key;
       }
 
       function appendSerialLog(text) {
@@ -1743,6 +1767,7 @@
         } catch {
         }
         serialPort = null;
+        lastVoiceSerialSent = null;
         rejectAllSerialQueues();
         resetBoardState();
         updateSerialUi();
@@ -1761,15 +1786,22 @@
 
       async function speakText() {
         const input = document.getElementById('speakText');
+        const text = input ? input.value.trim() : '';
+        const warning = playbackWarning(phraseBudget(text));
+        updatePlaybackBudgets();
+        if (!text || warning) return;
         if (voiceSerialTimer) {
           clearTimeout(voiceSerialTimer);
           voiceSerialTimer = null;
         }
         try {
-          await sendVoiceSerial();
-        } catch {
+          await sendVoiceSerial(true);
+          await sendSerialLine(text);
+        } catch (err) {
+          const hint = document.getElementById('speakLengthHint');
+          hint.textContent = slotCommandErrorText('speak', err);
+          hint.classList.add('error');
         }
-        await sendSerialLine(input ? input.value : '');
       }
 
       async function identifySerialBoard() {
@@ -2006,16 +2038,17 @@
       }
 
       function handleAckReply(ok, line) {
-        const entry = pendingAcks.shift();
-        if (!entry) return;
+        const entry = pendingAcks[0];
+        if (!entry || (ok && entry.prefix && line !== entry.prefix)) return;
+        pendingAcks.shift();
         clearTimeout(entry.timer);
         if (ok) entry.resolve(line);
         else entry.reject(new Error(line.slice(5).trim() || 'error'));
       }
 
-      function awaitAck(timeoutMs) {
+      function awaitAck(timeoutMs, prefix) {
         return new Promise((resolve, reject) => {
-          const entry = { resolve, reject };
+          const entry = { resolve, reject, prefix };
           entry.timer = setTimeout(() => {
             const i = pendingAcks.indexOf(entry);
             if (i >= 0) pendingAcks.splice(i, 1);
@@ -2044,7 +2077,7 @@
         const dumpStore = opts && opts.waitDump;
         const next = commandChain.then(async () => {
           const dumpPromise = dumpStore ? registerDumpWaiter(dumpStore) : null;
-          const ackPromise = wantsAck ? awaitAck(opts && opts.timeoutMs) : null;
+          const ackPromise = wantsAck ? awaitAck(opts && opts.timeoutMs, opts && opts.ackPrefix) : null;
           await sendSerialLine(line);
           if (dumpPromise) await dumpPromise;
           if (ackPromise) await ackPromise;
@@ -2072,12 +2105,13 @@
 
         // First attempt allows the board to finish its boot welcome speech (~3s),
         // then we retry once before giving up.
-        (async () => {
-          if (await tryOnce(4500)) return;
+        return (async () => {
+          if (await tryOnce(4500)) return true;
           appendSerialLog('<< retrying !INFO?\r\n');
-          if (await tryOnce(3000)) return;
+          if (await tryOnce(3000)) return true;
           appendSerialLog('<< no !INFO reply (firmware too old?)\r\n');
           applyLegacyRamFallback();
+          return false;
         })();
       }
 
@@ -2101,6 +2135,9 @@
         const ramSlots = parseInt(data.RAM, 10);
         boardCaps.ram = Number.isFinite(ramSlots) && ramSlots > 0 ? ramSlots : DEFAULT_RAM_SLOTS;
         boardCaps.fram = parseInt(data.FRAM || '0', 10) || 0;
+        // Older firmware reports only usable FRAM; it has no explicit format command.
+        boardCaps.framReady = boardCaps.fram > 0 && (data.FRAMREADY === undefined || data.FRAMREADY === '1');
+        boardCaps.framFormat = data.MODEL === 'KAIWA' && data.FRAMFORMAT === '1';
         boardCaps.ramBase = parseInt(data.RAMBASE || String(DEFAULT_RAM_BASE), 10) || DEFAULT_RAM_BASE;
 
         // FRAM MIDI rows start *after* the RAM note block. Never use legacy FRAMBASE=28 (overlapped RAM).
@@ -2179,6 +2216,8 @@
         if (framInfo) {
           if (!framAvailable) {
             framInfo.textContent = 'FRAM bank - none detected';
+          } else if (!boardCaps.framReady) {
+            framInfo.textContent = 'FRAM detected — format required.';
           } else {
             const midiLast = boardCaps.framMidiBase + boardCaps.framMidiSlots - 1;
             let t = `FRAM — ${boardCaps.fram} storage slots`;
@@ -2193,14 +2232,19 @@
           }
         }
 
-        slotState.R = Array.from({ length: boardCaps.ram }, () => ({ savedText: '', dirty: false }));
-        slotState.F = Array.from({ length: boardCaps.fram }, () => ({ savedText: '', dirty: false }));
-        renderSlotList('R');
-        renderSlotList('F');
-        framSyncedOnce = false;
+        // Capability refreshes must not discard unsaved RAM edits after formatting FRAM.
+        for (const [store, count] of [['R', boardCaps.ram], ['F', boardCaps.framReady ? boardCaps.fram : 0]]) {
+          if (slotState[store].length !== count) {
+            slotState[store] = Array.from({ length: count }, () => ({ savedText: '', dirty: false }));
+            renderSlotList(store);
+            if (store === 'F') framSyncedOnce = false;
+          }
+        }
+        if (!boardCaps.framReady) renderSlotList('F');
+        updateFramControls();
 
         document.getElementById('ramBulkApplyBtn')?.toggleAttribute('disabled', !ramAvailable);
-        document.getElementById('framBulkApplyBtn')?.toggleAttribute('disabled', !framAvailable);
+        document.getElementById('framBulkApplyBtn')?.toggleAttribute('disabled', !boardCaps.framReady);
 
         if (activeTab === 'fram' && !framAvailable) selectTab('live');
         if (activeTab === 'ram' && !ramAvailable) selectTab('live');
@@ -2211,7 +2255,10 @@
       function resetBoardState() {
         boardCaps.ram = 0;
         boardCaps.fram = 0;
+        boardCaps.framReady = false;
+        boardCaps.framFormat = false;
         boardCaps.ver = '';
+        document.getElementById('framFormatStatus').textContent = '';
         boardCaps.model = '';
         boardCaps.id = '';
         applyBoardCaps();
@@ -2225,6 +2272,10 @@
         const listId = store === 'R' ? 'ramSlotList' : 'framSlotList';
         const list = document.getElementById(listId);
         if (!list) return;
+        if (store === 'F' && boardCaps.fram > 0 && !boardCaps.framReady) {
+          list.innerHTML = '<div class="bank-empty">The bank is unrecognized or unreadable. Back up existing data with its original firmware before choosing Format FRAM…</div>';
+          return;
+        }
         const count = store === 'R' ? boardCaps.ram : boardCaps.fram;
         const ramBaseNote = boardCaps.ramBase;
         const fMidiBase = boardCaps.framMidiBase;
@@ -2256,7 +2307,7 @@
 
           const badge = document.createElement('div');
           badge.className = 'slot-badge';
-          badge.innerHTML = `<span class="slot-index">#${i}</span>${noteBadgeLine}<span class="slot-status" id="status-${store}-${i}"></span>`;
+          badge.innerHTML = `<span class="slot-index">#${i}</span>${noteBadgeLine}`;
           row.appendChild(badge);
 
           const input = document.createElement('input');
@@ -2276,7 +2327,14 @@
               saveSlot(store, i);
             }
           });
-          row.appendChild(input);
+          const textCell = document.createElement('div');
+          textCell.className = 'slot-text';
+          const budget = document.createElement('div');
+          budget.className = 'phrase-budget';
+          budget.id = `budget-${store}-${i}`;
+          input.setAttribute('aria-describedby', budget.id);
+          textCell.append(input, budget);
+          row.appendChild(textCell);
 
           const actions = document.createElement('div');
           actions.className = 'slot-actions';
@@ -2297,11 +2355,17 @@
           actions.appendChild(playBtn);
           actions.appendChild(eraseBtn);
           row.appendChild(actions);
+          const status = document.createElement('div');
+          status.className = 'slot-status';
+          status.id = `status-${store}-${i}`;
+          status.setAttribute('role', 'status');
+          row.appendChild(status);
 
           frag.appendChild(row);
         }
         list.innerHTML = '';
         list.appendChild(frag);
+        updatePlaybackBudgets();
       }
 
       function handleSentReply(line) {
@@ -2340,6 +2404,7 @@
         const dirty = input.value !== state.savedText;
         state.dirty = dirty;
         row.classList.toggle('modified', dirty);
+        updateSlotBudget(store, idx);
       }
 
       function setSlotStatus(store, idx, text, isError) {
@@ -2349,10 +2414,68 @@
         el.classList.toggle('error', !!isError);
       }
 
+      function phraseBudget(text) {
+        const phrase = String(text || '');
+        const limit = Math.min(127, boardCaps.max > 0 ? boardCaps.max : 127);
+        const vowels = readVoiceSettings().vowels;
+        const bytes = new TextEncoder().encode(phrase).length;
+        const vowelCount = (phrase.match(/[aeiou]/g) || []).length;
+        const maxVowels = bytes > limit ? -1 : vowelCount
+          ? Math.min(6, Math.floor((limit - bytes) / vowelCount)) : 6;
+        return { bytes, expanded: bytes + vowelCount * vowels, vowels, maxVowels, limit,
+          ascii: !/[^\x00-\x7f]/.test(phrase) };
+      }
+
+      function playbackWarning(budget) {
+        if (!budget.ascii) return 'Use ASCII romaji phonetics; Japanese characters are not supported.';
+        if (budget.bytes > budget.limit) {
+          return `Phrase is ${budget.bytes}/${budget.limit} bytes before elongation. Shorten or split it.`;
+        }
+        if (budget.expanded > budget.limit) {
+          return `With Vowels ${budget.vowels}: ${budget.expanded}/${budget.limit} bytes. Reduce Vowels to ${budget.maxVowels} or less, or split this phrase.`;
+        }
+        return '';
+      }
+
+      function showPhraseBudget(element, text, draft = false) {
+        if (!element) return;
+        if (!text) { element.textContent = ''; element.classList.remove('error'); return; }
+        const budget = phraseBudget(text);
+        const warning = playbackWarning(budget);
+        element.textContent = (draft ? 'Draft — ' : '') + (warning ||
+          `Playback: ${budget.expanded}/${budget.limit} bytes · Vowels 0–${budget.maxVowels} supported.`) +
+          (draft ? ' Play uses the saved phrase.' : '');
+        element.classList.toggle('error', !!warning);
+      }
+
+      function updateSlotBudget(store, idx) {
+        const input = document.getElementById(`slot-${store}-${idx}`);
+        const state = slotState[store][idx];
+        if (!input || !state) return;
+        showPhraseBudget(document.getElementById(`budget-${store}-${idx}`), input.value,
+          input.value !== state.savedText);
+        const status = document.getElementById(`status-${store}-${idx}`);
+        if (status?.textContent.startsWith('Cannot play saved phrase.')) {
+          const warning = playbackWarning(phraseBudget(state.savedText));
+          const draftHint = state.dirty ? ' Save your changes before playing the edited phrase.' : '';
+          setSlotStatus(store, idx, warning ? `Cannot play saved phrase. ${warning}${draftHint}` : '', !!warning);
+        }
+      }
+
+      function updatePlaybackBudgets() {
+        showPhraseBudget(document.getElementById('speakLengthHint'), document.getElementById('speakText')?.value.trim());
+        for (const store of ['R', 'F']) {
+          slotState[store].forEach((_, idx) => updateSlotBudget(store, idx));
+        }
+      }
+
       function slotCommandErrorText(action, err) {
         const msg = err && err.message ? err.message : 'error';
         if (msg === 'timeout') {
           return `${action} pending: board busy, reload to verify`;
+        }
+        if (msg === 'too-long' && (action === 'play' || action === 'speak')) {
+          return `Playback exceeds 127 bytes after vowel elongation. Reduce Vowels or shorten the phrase.`;
         }
         return `${action} failed: ${msg}`;
       }
@@ -2435,12 +2558,25 @@
       }
 
       async function playSlot(store, idx) {
+        // !PLAY reads the saved bank entry, never the unsaved text in the form.
+        const state = slotState[store][idx];
+        const text = state ? state.savedText : '';
+        if (!text) { setSlotStatus(store, idx, 'Saved slot is empty. Save a phrase first.', true); return; }
+        const warning = playbackWarning(phraseBudget(text));
+        if (warning) {
+          const draftHint = state.dirty ? ' Save your changes before playing the edited phrase.' : '';
+          setSlotStatus(store, idx, `Cannot play saved phrase. ${warning}${draftHint}`, true);
+          return;
+        }
         setSlotStatus(store, idx, 'playing...', false);
+        if (voiceSerialTimer) { clearTimeout(voiceSerialTimer); voiceSerialTimer = null; }
         try {
+          // Sync even after external MIDI changes, so playback matches the GUI dials.
+          await sendVoiceSerial(true);
           await sendCommand(`!PLAY ${store} ${idx}`, { ack: true, timeoutMs: 60000 });
           setSlotStatus(store, idx, '', false);
         } catch (err) {
-          setSlotStatus(store, idx, `play failed: ${err.message}`, true);
+          setSlotStatus(store, idx, slotCommandErrorText('play', err), !isTimeoutError(err));
         }
       }
 
@@ -2471,12 +2607,58 @@
         }
       }
 
+      function updateFramControls() {
+        const ready = boardCaps.framReady && !framFormatting;
+        document.getElementById('framEditor').disabled = !ready;
+        for (const id of ['framReloadBtn', 'framSaveAllBtn', 'framRefSheetBtn']) {
+          document.getElementById(id).disabled = !ready;
+        }
+        const button = document.getElementById('framFormatBtn');
+        button.disabled = !serialWriter || boardCaps.fram <= 0 || !boardCaps.framFormat || framFormatting;
+        button.textContent = framFormatting ? 'Formatting…' : 'Format FRAM…';
+        button.title = boardCaps.framFormat ? 'Erase all FRAM data and create an empty Kaiwa bank' : 'Requires Kaiwa firmware 1.0.2 or newer';
+        if (!framFormatting && boardCaps.fram > 0 && !boardCaps.framFormat) {
+          document.getElementById('framFormatStatus').textContent = 'Install Kaiwa firmware 1.0.2 or newer to format FRAM here.';
+        }
+      }
+
+      async function formatFram() {
+        if (!serialWriter || boardCaps.fram <= 0 || !boardCaps.framFormat || framFormatting) return;
+        if (!window.confirm('Format FRAM for Kaiwa?\n\nThis permanently erases ALL FRAM data, including sentences and settings saved by VAX, SAM, or another firmware, plus unsaved FRAM edits here. Back up with the original firmware first.\n\nRAM sentences and voice settings are kept. Continue?')) return;
+        framFormatting = true;
+        updateFramControls();
+        const status = document.getElementById('framFormatStatus');
+        status.textContent = 'Formatting and verifying FRAM… Keep the board powered and connected.';
+        try {
+          await sendCommand('!FORMAT F KAIWA', { ack: true, timeoutMs: 60000, ackPrefix: '!OK FORMAT F' });
+          slotState.F = [];
+          framSyncedOnce = false;
+          if (!await requestBoardInfo() || !boardCaps.framReady) {
+            throw new Error('could not confirm the new bank; reconnect to check its state');
+          }
+          await sendCommand('!DUMP F', { waitDump: 'F' });
+          if (slotState.F.some(slot => slot.savedText !== '')) {
+            throw new Error('the bank did not reload as empty');
+          }
+          framSyncedOnce = true;
+          status.textContent = 'FRAM formatted for Kaiwa — 100 empty slots ready.';
+        } catch (err) {
+          // A failed/uncertain format must never leave stale slots available for writing.
+          boardCaps.framReady = false;
+          applyBoardCaps();
+          status.textContent = `Format not confirmed: ${err.message}. Reconnect to check FRAM before retrying.`;
+        } finally {
+          framFormatting = false;
+          updateFramControls();
+        }
+      }
+
       function reloadBank(store) {
         if (store === 'R') {
           if (boardCaps.ram <= 0) return;
           sendCommand('!DUMP R', { waitDump: 'R' }).catch(() => { });
         } else {
-          if (boardCaps.fram <= 0) return;
+          if (!boardCaps.framReady || framFormatting) return;
           sendCommand('!DUMP F', { waitDump: 'F' }).catch(() => { });
         }
       }
@@ -2494,7 +2676,7 @@
           if (btn) btn.classList.toggle('active', key === name);
           if (panel) panel.hidden = (key !== name);
         });
-        if (name === 'fram' && boardCaps.fram > 0 && !framSyncedOnce) {
+        if (name === 'fram' && boardCaps.framReady && !framFormatting && !framSyncedOnce) {
           sendCommand('!DUMP F', { waitDump: 'F' })
             .then(() => { framSyncedOnce = true; })
             .catch(() => { });
@@ -2517,6 +2699,7 @@
       });
 
       document.getElementById('speakBtn')?.addEventListener('click', speakText);
+      document.getElementById('speakText')?.addEventListener('input', updatePlaybackBudgets);
 
       document.getElementById('speakText')?.addEventListener('keydown', async event => {
         if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
@@ -2528,6 +2711,7 @@
       document.getElementById('clearBtn')?.addEventListener('click', () => {
         const input = document.getElementById('speakText');
         if (input) input.value = '';
+        updatePlaybackBudgets();
       });
 
       if (supportsSerial) {
@@ -2830,6 +3014,7 @@
       });
 
       document.getElementById('ramReloadBtn')?.addEventListener('click', () => reloadBank('R'));
+      document.getElementById('framFormatBtn')?.addEventListener('click', formatFram);
       document.getElementById('framReloadBtn')?.addEventListener('click', () => reloadBank('F'));
       document.getElementById('ramSaveAllBtn')?.addEventListener('click', () => saveAllChanged('R'));
       document.getElementById('framSaveAllBtn')?.addEventListener('click', () => saveAllChanged('F'));
@@ -2850,6 +3035,7 @@
       updateMidiUi();
       updateSerialUi();
       resetBoardState();
+      updatePlaybackBudgets();
     })();
   </script>
 </body>

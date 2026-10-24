@@ -1,6 +1,6 @@
 # Kaiwa Vox
 
-Browser control surface for Kraftor Kaiwa firmware and the **ATP3011R4-PU** AquesTalk pico LSI. GUI v1.0 — live phonetic speech over USB serial, MIDI voice shaping and slot playback, RAM/FRAM sentence banks, printable MIDI reference sheets, and Japanese-themed skins.
+Browser control surface for Kraftor Kaiwa firmware and the **ATP3011R4-PU** AquesTalk pico LSI. GUI v1.2 — live phonetic speech over USB serial, MIDI voice shaping and slot playback, RAM/FRAM sentence banks, printable MIDI reference sheets, and Japanese-themed skins.
 
 [Open the published app](https://deladriere.github.io/Kaiwa_Designer/)
 
@@ -12,6 +12,7 @@ Browser control surface for Kraftor Kaiwa firmware and the **ATP3011R4-PU** Aque
 - Shape the voice with Speed, Pitch, Accent, and Vowels (serial `!VOICE` + MIDI CC / pitch bend).
 - Select MIDI channels 1–15 to match the board DIP switches.
 - Edit RAM and FRAM sentence slots; bulk-fill from pasted text.
+- Format FRAM explicitly with an erase confirmation (Kaiwa firmware 1.0.2+).
 - Print RAM/FRAM MIDI reference sheets.
 - Skins: Washi, Sumi, Matcha, Sakura, Torii.
 
@@ -31,7 +32,20 @@ oha'yo-.
 maka-/hannya-haramita-/si'n-gyo-.
 ```
 
-Vowels (CC 3) inserts extra `-` after each lowercase `a e i o u` before speak — keep it at `0` for long phrases or they may return `!ERR too-long`.
+Vowels (CC 3) inserts extra `-` after each lowercase `a e i o u` before playback.
+The **127-byte chip limit includes those added dashes**. The GUI shows playback
+length and the maximum Vowels setting for each phrase, updating when you edit
+text or change the dials/preset. It blocks over-limit Speak/Play requests with
+an exact suggestion, such as **Reduce Vowels to 1 or less, or split this phrase**.
+Saving stores the original text, so a phrase can still be saved at a high Vowels
+setting and played later at a lower one. Play uses the saved slot; unsaved edits
+are labelled as drafts. Before Speak/Play, serial voice settings match the dials.
+
+For example, `kanji-zaibo-sa-gyo-jin/hannya-ha-ra-mi-ta-ji-/sho-kengo-onkaiku-do-/issaiku-yaku.`
+is 81 bytes with 29 vowels: Vowels 1 gives 110 bytes; Vowels 2 gives 139 bytes.
+To use Vowels 6, split it into shorter valid phrases in separate slots. FRAM
+formatting does not change the chip limit. This GUI change works with the
+existing Kaiwa firmware and requires no FRAM format or firmware update.
 
 Full symbol table, tips, and a Heart Sutra bank example are in the [user manual](user_manual.html#text-format). Datasheet: [atp3011_datasheet.pdf](https://www.a-quest.com/archive/manual/atp3011_datasheet.pdf).
 
@@ -65,6 +79,15 @@ Open `index.html` in a supported browser (or use the published app link above).
 DIP switches are read at startup. DIP1=8, DIP2=4, DIP3=2, DIP4=1. All OFF = Omni. Full table: [user manual](user_manual.html#midi-dip-switches).
 
 Chrome does not reliably pair a Web Serial port with a Web MIDI output — use the identify buttons when several boards are connected.
+
+## Switching firmware / formatting FRAM
+
+With Kaiwa firmware 1.0.2 or newer, unrecognized FRAM data is preserved at boot.
+Open **FRAM Sentences → Format FRAM…** to erase it and create 100 empty slots.
+The confirmation covers all FRAM data, including VAX/SAM sentences and settings;
+back up with the original firmware first. RAM sentences and voice settings are
+kept. The GUI locks FRAM editing until the bank is ready and verifies the board
+state after formatting. Older firmware must be upgraded to enable this button.
 
 ## Manual
 

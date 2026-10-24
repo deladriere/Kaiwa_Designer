@@ -340,7 +340,11 @@ yorosi'idesuka?</pre>
       <pre>maka-/hannya-haramita-/si'n-gyo-.</pre>
       <p>Here <code>-</code> lengthens vowels, <code>/</code> splits accent phrases, <code>'</code> marks the pitch drop in <code>si'n</code>, and <code>.</code> ends the sentence.</p>
 
-      <p>Full Heart Sutra as twelve speakable phrases (each under 127 bytes). Paste into a RAM/FRAM bulk-fill box, one line per slot:</p>
+      <p><strong>Vowel elongation counts toward the 127-byte speech limit.</strong> The GUI shows the length after adding vowel dashes and the maximum Vowels setting for each phrase. If the result is too long, reduce Vowels to the suggested value or split the text into shorter valid phrases in separate slots. Formatting FRAM cannot increase this limit.</p>
+      <p>For example, <code>kanji-zaibo-sa-gyo-jin/hannya-ha-ra-mi-ta-ji-/sho-kengo-onkaiku-do-/issaiku-yaku.</code> is 81 bytes with 29 lowercase vowels. Vowels 1 produces 110 bytes; Vowels 2 produces 139 bytes and cannot play. The maximum for that phrase is 1.</p>
+      <p>Save stores the original, unexpanded phrase. Play uses the saved slot; unsaved edits are marked as drafts. Before Speak or Play, the GUI sends the dial settings to the board. An over-limit request is blocked with a specific warning; the Vowels setting and phrase are never silently changed.</p>
+
+      <p>Full Heart Sutra as twelve phrases (each under 127 bytes before elongation). Check each phrase’s Vowels limit before playback. Paste into a RAM/FRAM bulk-fill box, one line per slot:</p>
       <pre>maka-/hannya-haramita-/si'n-gyo-.
 kanji-zaibo-sa-gyo-jin/hannya-ha-ra-mi-ta-ji-/sho-kengo-onkaiku-do-/issaiku-yaku.
 sha-ri-si-/sikifu-i-ku-/ku-fu-i-siki/sikisokuze-ku-/ku-sokuze-siki/jyu-so-gyo-shikiyaku/bu-nyo-ze-.
@@ -511,6 +515,15 @@ gya-te-/gya-te-/ha-ra-gya-te-/haraso-gya-te-/bo-ji-sowaka-/hannya-sin-gyo-.</pre
         <li><strong>FRAM</strong> — up to 100 persistent slots when the RC256 is present. MIDI notes 48–127 cover slots 0–79; slots 80–99 are serial/GUI only.</li>
       </ul>
       <p>Use <code>Reload from board</code>, <code>Save all changed</code>, per-slot <code>Play</code>, and bulk paste fill. Phrase length is capped at 127 bytes for AquesTalk even if an older SAM bank used longer text.</p>
+    </section>
+
+    <section id="fram-format">
+      <h2>Format FRAM when changing firmware</h2>
+      <p>Kaiwa firmware 1.0.2 and newer preserve unrecognized FRAM data at startup. A detected chip with an unrecognized or unreadable bank shows <strong>format required</strong>; slot editing and playback stay disabled.</p>
+      <p>Back up existing data using its original firmware first. Then open <strong>FRAM Sentences → Format FRAM…</strong> and confirm. This permanently erases the entire FRAM, including VAX/SAM sentences and settings and unsaved FRAM edits in the GUI. RAM sentences and voice settings are kept.</p>
+      <p>Keep the board powered and connected while the firmware clears and verifies the chip. The GUI then checks readiness and reloads 100 empty slots. If it cannot confirm success, reconnect to check the bank before retrying. The button requires Kaiwa firmware 1.0.2 or newer.</p>
+      <p>SAM shares Kaiwa’s storage layout, but SAM text may need to be rewritten as AquesTalk phonetics. VAX uses a different bank format and cannot be read by Kaiwa.</p>
+      <p>Terminal users can explicitly erase and initialize FRAM with <code>!FORMAT F KAIWA</code>. Success replies <code>!OK FORMAT F</code>. <code>!INFO?</code> reports <code>FRAMREADY=0</code> or <code>FRAMREADY=1</code>; unready slot commands return <code>!ERR format-required</code>.</p>
     </section>
 
     <section id="commands">
